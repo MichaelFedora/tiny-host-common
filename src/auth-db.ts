@@ -17,7 +17,10 @@ export class AuthDB {
 
   constructor(
     config: { sessionExpTime: number },
-    db: LevelUp) {
+    db: LevelUp,
+    private scope = '') {
+    if(scope && !scope.endsWith('!!'))
+      this.scope = scope + '!!';
 
     this._db = db;
     this.sessionExpTime = config.sessionExpTime;
@@ -38,31 +41,31 @@ export class AuthDB {
     do {
       id = v4();
     } while(await this.getSession(id) != null);
-    await this.db.put('session!!' + id, { user, created: Date.now(), scopes });
+    await this.db.put(this.scope + 'session!!' + id, { user, created: Date.now(), scopes });
     return id;
   }
 
   async getSession(session: string): Promise<Session> {
-    const s = await this.safeGet('session!!' + session);
+    const s = await this.safeGet(this.scope + 'session!!' + session);
     if(s) s.id = session;
     return s;
   }
 
   async delSession(session: string): Promise<void> {
-    return await this.db.del('session!!' + session);
+    return await this.db.del(this.scope + 'session!!' + session);
   }
 
   async delManySessions(sessions: readonly string[]): Promise<void> {
     let batch = this.db.batch();
     for(const sess of sessions)
-      batch = batch.del('session!!' + sess);
+      batch = batch.del(this.scope + 'session!!' + sess);
     await batch.write();
   }
 
   async cleanSessions(): Promise<void> {
     const sessions: string[] = [];
-    const start = 'session!!';
-    const end = 'session!"'
+    const start = this.scope + 'session!!';
+    const end = this.scope + 'session!"'
     await new Promise<void>(res => {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: Session }) => {
@@ -75,8 +78,8 @@ export class AuthDB {
 
   async getSessionsForUser(user: string): Promise<string[]> {
     const sessions: string[] = [];
-    const start = 'session!!';
-    const end = 'session!"'
+    const start = this.scope + 'session!!';
+    const end = this.scope + 'session!"'
     await new Promise<void>(res => {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: Session }) => {
@@ -94,33 +97,33 @@ export class AuthDB {
     do {
       id = v4();
     } while(await this.getUser(id) != null);
-    await this.db.put('user!!' + id, user);
+    await this.db.put(this.scope + 'user!!' + id, user);
     return id;
   }
 
   async putUser(id: string, user: User): Promise<void> {
     delete user.id;
 
-    await this.db.put('user!!' + id, user);
+    await this.db.put(this.scope + 'user!!' + id, user);
   }
 
   async getUser(id: string): Promise<User> {
-    const u = await this.safeGet('user!!' + id);
+    const u = await this.safeGet(this.scope + 'user!!' + id);
     if(u) u.id = id;
     return u;
   }
 
   async delUser(id: string): Promise<void> {
-    const u = await this.safeGet('user!!' + id);
+    const u = await this.safeGet(this.scope + 'user!!' + id);
     if(!u) return;
-    await this.db.del('user!!' + id);
+    await this.db.del(this.scope + 'user!!' + id);
     this._onUserDelete.next(u);
   }
 
   async getUserFromUsername(username: string): Promise<User> {
     let destroyed = false;
-    const start = 'user!!';
-    const end = 'user!"'
+    const start = this.scope + 'user!!';
+    const end = this.scope + 'user!"'
     return await new Promise<User>(res => {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }) => {

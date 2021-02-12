@@ -1,6 +1,7 @@
 import { LevelUp } from 'levelup';
 import { Session, User } from './types';
 export declare class AuthDB {
+    private scope;
     private sessionExpTime;
     private _db;
     get db(): LevelUp;
@@ -9,7 +10,7 @@ export declare class AuthDB {
     get onUserDelete(): import("rxjs").Observable<User>;
     constructor(config: {
         sessionExpTime: number;
-    }, db: LevelUp);
+    }, db: LevelUp, scope?: string);
     addSession(user: string, scopes?: string[]): Promise<string>;
     getSession(session: string): Promise<Session>;
     delSession(session: string): Promise<void>;
