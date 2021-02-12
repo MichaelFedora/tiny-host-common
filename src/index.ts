@@ -15,7 +15,7 @@ declare module 'express-serve-static-core' {
 import { AuthApi } from './auth-api';
 import { AuthDB } from './auth-db';
 import { User, Session, Config as AuthConfig } from './types';
-import { validateUserSession, handleError, wrapAsync } from './middleware';
+import { validateUserSession, handleError, handleValidationError, wrapAsync } from './middleware';
 import { AuthError, NotFoundError, NotAllowedError, MalformedError } from './errors';
 
 export {
@@ -26,6 +26,7 @@ export {
   AuthConfig,
   validateUserSession,
   handleError,
+  handleValidationError,
   wrapAsync,
   AuthError,
   NotFoundError,
