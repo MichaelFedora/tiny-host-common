@@ -1,5 +1,6 @@
 import { LevelUp } from 'levelup';
 import { v4 } from 'uuid';
+import { Subject } from 'rxjs';
 
 import { Session, User } from './types';
 
@@ -11,11 +12,23 @@ export class AuthDB {
   public get db(): LevelUp { return this._db; }
   public async safeGet(key: string): Promise<any> { return this._db.get(key).catch(e => { if(e.notFound) return null; else throw e; }); }
 
+  private _onUserDelete = new Subject<User>();
+  public get onUserDelete() { return this._onUserDelete.asObservable(); }
+
   constructor(
     config: { sessionExpTime: number },
     db: LevelUp) {
+
     this._db = db;
     this.sessionExpTime = config.sessionExpTime;
+    this.onUserDelete.subscribe(async user => {
+      try {
+        const sessions = await this.getSessionsForUser(user.id);
+        await this.delManySessions(sessions);
+      } catch(e) {
+        console.error('Error deleting sessions for deleted user "' + user.username + '" (' + user.id + ')!');
+      }
+    });
   }
 
   // auth
@@ -98,7 +111,10 @@ export class AuthDB {
   }
 
   async delUser(id: string): Promise<void> {
-    return await this.db.del('user!!' + id);
+    const u = await this.safeGet('user!!' + id);
+    if(!u) return;
+    await this.db.del('user!!' + id);
+    this._onUserDelete.next(u);
   }
 
   async getUserFromUsername(username: string): Promise<User> {

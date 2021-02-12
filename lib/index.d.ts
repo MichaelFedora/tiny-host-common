@@ -10,7 +10,7 @@ declare module 'express-serve-static-core' {
         session: import('./types').Session;
     }
 }
-import AuthApi from './auth-api';
+import { AuthApi } from './auth-api';
 import { AuthDB } from './auth-db';
 import { User, Session, Config as AuthConfig } from './types';
 import { validateUserSession, handleError, wrapAsync } from './middleware';

@@ -9,16 +9,18 @@ import { hash } from './util';
 
 import { AuthDB } from './auth-db';
 
-class AuthApi {
+export class AuthApi {
 
-  constructor() { }
+  private _router: Router;
+  get router() { return this._router; }
 
-  init(config: {
+  constructor(config: {
     whitelist?: string[]
   },
   db: AuthDB,
-  onUserDelete = async (user: User) => null,
   router = Router()) {
+
+    this._router = router;
 
     const validateSession = validateUserSession(db);
 
@@ -99,13 +101,10 @@ class AuthApi {
     }), handleError('get-self'));
 
     router.delete('/self', validateSession, wrapAsync(async (req, res) => {
-      if(req.user) {
+      if(req.user)
         await db.delUser(req.user.id);
-        await onUserDelete(req.user);
-      }
       res.sendStatus(204);
     }), handleError('delete-self'));
+
   }
 }
-
-export default new AuthApi();

@@ -1,10 +1,9 @@
-import { User } from './types';
+import { Router } from 'express';
 import { AuthDB } from './auth-db';
-declare class AuthApi {
-    constructor();
-    init(config: {
+export declare class AuthApi {
+    private _router;
+    get router(): Router;
+    constructor(config: {
         whitelist?: string[];
-    }, db: AuthDB, onUserDelete?: (user: User) => Promise<any>, router?: import("express-serve-static-core").Router): void;
+    }, db: AuthDB, router?: import("express-serve-static-core").Router);
 }
-declare const _default: AuthApi;
-export default _default;

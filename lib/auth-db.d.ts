@@ -5,6 +5,8 @@ export declare class AuthDB {
     private _db;
     get db(): LevelUp;
     safeGet(key: string): Promise<any>;
+    private _onUserDelete;
+    get onUserDelete(): import("rxjs").Observable<User>;
     constructor(config: {
         sessionExpTime: number;
     }, db: LevelUp);
