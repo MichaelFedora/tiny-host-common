@@ -2,6 +2,7 @@
   "name": "tiny-host-common",
   "version": "1.0.0",
   "description": "A common package for tiny hosts (auth, middleware, etc)",
+  "repository": "github:MichaelFedora/tiny-host-common",
   "main": "lib/index",
   "scripts": {
     "build": "del-cli lib && tsc"
