@@ -5,5 +5,6 @@ export declare class AuthApi {
     get router(): Router;
     constructor(config: {
         whitelist?: string[];
+        requireScopes?: boolean;
     }, db: AuthDB, router?: import("express-serve-static-core").Router);
 }

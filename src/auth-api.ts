@@ -16,6 +16,7 @@ export class AuthApi {
 
   constructor(config: {
     whitelist?: string[]
+    requireScopes?: boolean
   },
   db: AuthDB,
   router = Router()) {
@@ -32,7 +33,7 @@ export class AuthApi {
       if(config.whitelist && !config.whitelist.includes(req.body.username))
         throw new AuthError('Whitelist is active.');
 
-      if(!req.body.scopes || !(req.body.scopes instanceof Array))
+      if(config.requireScopes && (!req.body.scopes || !(req.body.scopes instanceof Array)))
         throw new AuthError('Must provide scope(s)!');
 
       const user = await db.getUserFromUsername(req.body.username);
@@ -43,7 +44,7 @@ export class AuthApi {
       if(user.pass !== pass)
         throw new AuthError('Username / password mismatch.');
 
-      res.send(await db.addSession(user.id, req.body.scopes ));
+      res.send(await db.addSession(user.id, req.body.scopes));
     }), handleValidationError);
 
     authRouter.post('/register', json(), wrapAsync(async (req, res) => {
