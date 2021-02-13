@@ -17,8 +17,10 @@ export function wrapAsync(func: (req: Request, res?: Response, next?: NextFuncti
 }
 
 export function handleValidationError(err: any, req: Request, res: Response, next: NextFunction) {
-  if(!err)
+  if(!err) {
     next();
+    return;
+  }
 
   if(err instanceof AuthError) {
     res.status(403).json({ message: err.message });
@@ -28,14 +30,15 @@ export function handleValidationError(err: any, req: Request, res: Response, nex
   }
 }
 
-export function handleError(action: string) {
+export function handleError(action: string, debug = false) {
   return function(err: any, req: Request, res: Response, next: NextFunction) {
     if(!err) {
       next();
       return;
     }
 
-    // console.log('Handle Error: ' + err);
+    if(debug)
+      console.error('[debug]', err);
 
     if(err instanceof NotFoundError) {
       res.sendStatus(404);
