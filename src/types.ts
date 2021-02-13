@@ -1,7 +1,7 @@
 export interface Session {
   id?: string;
   user: string;
-  scopes: string[];
+  scopes: readonly string[];
   readonly created: number;
 }
 

@@ -11,7 +11,7 @@ export declare class AuthDB {
     constructor(config: {
         sessionExpTime: number;
     }, db: LevelUp, scope?: string);
-    addSession(user: string, scopes?: string[]): Promise<string>;
+    addSession(user: string, scopes?: readonly string[]): Promise<string>;
     getSession(session: string): Promise<Session>;
     delSession(session: string): Promise<void>;
     delManySessions(sessions: readonly string[]): Promise<void>;

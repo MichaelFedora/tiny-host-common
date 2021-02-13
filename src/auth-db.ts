@@ -36,7 +36,7 @@ export class AuthDB {
 
   // auth
 
-  async addSession(user: string, scopes = ['/']): Promise<string> {
+  async addSession(user: string, scopes: readonly string[] = ['/']): Promise<string> {
     let id: string;
     do {
       id = v4();
