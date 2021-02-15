@@ -38,20 +38,20 @@ items (user & session types, middleware, errors, etc).
 
 ## Usage
 
-**Services**:
+**Services** (from `tiny-host-common/auth`):
 - `AuthDB` - The database for handling Users, Sessions, etc.
 - `AuthApi` - The Api for handling authentication, described above.
   - Optionally, it can also handle Handshakes and Master-Key generation
     - Handshakes are so apps can authenticate directly with a store
     - Master-Keys are for homes to be able to easily generate tokens
 
-**Types**:
+**Types** (from `tiny-host-common/auth`):
 - `User`: A user data type
 - `Session`: A session data type
 
-**Middleware:**
+**Middleware**
 
-- `validateUserSession(db: AuthDB)` - middleware for validating a user session
+- `validateUserSession(db: AuthDB)` (from `/auth`) - middleware for validating a user session
   - appends to the request body:
     - `req.user instanceof User`
     - `req.session instanceof Session`
