@@ -148,6 +148,7 @@ export class AuthApi {
 
       handshakeRouter.get('/:id', wrapAsync(async (req, res) => {
         res.json({
+          redirect: req.handshake.redirect,
           scopes: req.handshake.scopes
         });
       }));
@@ -233,7 +234,7 @@ export class AuthApi {
 
       authRouter.use('/master-key', masterKeyRouter, handleError('auth-master-key'));
 
-      authRouter.post('/generate-token', wrapAsync(async (req, res) => {
+      authRouter.post('/generate-session', wrapAsync(async (req, res) => {
         if(!req.query.key || typeof req.query.key !== 'string')
           throw new MalformedError('?key=.. required!');
         if(req.query.scopes ? typeof req.query.scopes !== 'string' : config.requireScopes)

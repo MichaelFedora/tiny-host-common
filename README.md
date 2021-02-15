@@ -3,10 +3,10 @@
 A small library for tiny-hosts, particularly for authentication and some common
 items (user & session types, middleware, errors, etc).
 
-## API
+## CoreAPI
 
-|req   |auth|path             |body|return |
-|------|----|-----------------|----|-------|
+|req   |auth|path             |body                    |return|
+|------|----|-----------------|------------------------|------|
 |POST  |    |/auth/login      |`{ username, password }`|`"sid"`|
 |POST  |    |/auth/register   |`{ username, password }`||
 |POST  |sid |/auth/change-pass|`{ password, newpass }` ||
@@ -15,11 +15,35 @@ items (user & session types, middleware, errors, etc).
 |GET   |sid |/self            |                        |`{ id, username }`|
 |DELETE|sid |/self            |                        ||
 
+## Optional Handshake API
+
+|req |auth|path                  |body|return|
+|----|----|----------------------|----|------|
+|GET |    |/auth/handshake/start ||redirect to frontend with `?handshake=..`|
+|GET |sid |/auth/handshake/:id   ||`{ redirect, scopes }`|
+|GET |sid |/auth/handshake/accept||redirect to app with `?code=..`|
+|GET |sid |/auth/handshake/cancel||redirect to app with `?error=access_denied`|
+|POST|    |/auth/session         |`{ redirect, code, scopes }`|`"sid"`|
+
+
+## Optional Master Key API
+
+|req   |auth|path                  |query         |body      |return          |
+|------|----|----------------------|--------------|----------|----------------|
+|GET   |sid |/auth/master-key      |              |          |`{ id, name }[]`|
+|POST  |sid |/auth/master-key      |`<&name=..>`  |          |`"key"`         |
+|PUT   |sid |/auth/master-key/:id  |              |`{ name }`|                |
+|DELETE|sid |/auth/master-key/:id  |              |          |                |
+|POST  |key |/auth/generate-session|`&scopes=[..]`|          |`"sid"`         |
+
 ## Usage
 
 **Services**:
-- `AuthDB` - The database for handling Users and Sessions
+- `AuthDB` - The database for handling Users, Sessions, etc.
 - `AuthApi` - The Api for handling authentication, described above.
+  - Optionally, it can also handle Handshakes and Master-Key generation
+    - Handshakes are so apps can authenticate directly with a store
+    - Master-Keys are for homes to be able to easily generate tokens
 
 **Types**:
 - `User`: A user data type
@@ -49,38 +73,6 @@ items (user & session types, middleware, errors, etc).
   - registering & logging in users
   - managing user & session (logging out, deleting self)
   - handshaking apps & homes
-
-### TODO
-
-- Add info url so apps can know what type of host this is
-  - /info - `{ type: 'file' | 'db' }`
-- Add handshakes, so these can be used independantly of homes
-  - /handshake/start?redirect=...&scopes=...
-  - user -> /handshake/{id}/cancel or /handshake/{id}/approve
-  - redirected -> {redirect}?code=...
-  - get /session with body `{ code, redirect, scopes }`, returns `"session"`
-- Add a "master key" token type, to generate scoped tokens.
-  - this is for Homes to request, when attaching a file-/db-host to a Home User
-  so they can generate other scoped tokens to be used by an application
-  - this does not expire, but can be revoked
-  - home -> store workflow:
-    - login to home
-    - click "attach a store"
-    - enter "my-store.mydomain.com"
-    - goto -> my-store.mydomain.com/handshake/start?redirect=..&type=master&id=..
-    - redirected -> my-store.mydomain.com/?handshake=..
-    - goto -> my-store.mydomain.com/handshake/../accept
-    - redirected -> my-home.mydomain.com/attach?code=..&id=..
-    - get my-store.mydomain.com/token with body `{ code, redirect, id, type: "master" }`
-      - get a "master key" token back as `"token"`
-  - store -> home workflow (preferred):
-    - login to store
-    - click "attach to home"
-    - enter "my-home.mydomain.com"
-    - goto -> my-home.mydomain.com/attach?type=..&url=..&code=..
-    - user approves
-    - get my-store.mydomain.com/token with body { code, type: "master" }
-      - get a "master key" token back as `"token"`
 
 ## License
 
