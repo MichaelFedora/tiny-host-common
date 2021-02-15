@@ -6,5 +6,8 @@ export declare class AuthApi {
     constructor(config: {
         whitelist?: string[];
         requireScopes?: boolean;
+        allowHandshakes?: boolean;
+        allowMasterKeys?: boolean;
+        handshakeExpTime?: number;
     }, db: AuthDB, router?: import("express-serve-static-core").Router);
 }
