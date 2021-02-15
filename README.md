@@ -3,7 +3,7 @@
 A small library for tiny-hosts, particularly for authentication and some common
 items (user & session types, middleware, errors, etc).
 
-## CoreAPI
+## Core API
 
 |req   |auth|path             |body                    |return|
 |------|----|-----------------|------------------------|------|

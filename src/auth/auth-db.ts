@@ -2,7 +2,7 @@ import { LevelUp } from 'levelup';
 import { v4 } from 'uuid';
 import { Subject } from 'rxjs';
 
-import { Handshake, MasterKey, Session, User } from './types';
+import { Handshake, MasterKey, Session, User } from './auth-types';
 
 export class AuthDB {
 

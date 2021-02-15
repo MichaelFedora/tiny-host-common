@@ -1,11 +1,12 @@
 import { randomBytes } from 'crypto';
 import { json, Router } from 'express';
 
-import { AuthError, MalformedError, NotAllowedError, NotFoundError } from './errors';
-import { handleError, handleValidationError, validateUserSession, wrapAsync } from './middleware';
+import { AuthError, MalformedError, NotAllowedError, NotFoundError } from '../errors';
+import { handleError, handleValidationError, wrapAsync } from '../middleware';
 
-import { User } from './types';
-import { hash } from './util';
+import { validateUserSession } from './auth-middleware';
+import { User } from './auth-types';
+import { hash } from './auth-util';
 
 import { AuthDB } from './auth-db';
 

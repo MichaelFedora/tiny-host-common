@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 
 import { AuthError, MalformedError, NotAllowedError, NotFoundError } from './errors';
 
-import { AuthDB } from './auth-db';
-
 const trueArray = ['true', '1', 'yes'];
 
 export function parseTrue(query: any): boolean {
@@ -66,26 +64,4 @@ export function handleError(action: string, debug = false) {
     console.error(`Error performing ${action}: `, err);
     res.status(500).json({ message: `Failed to perform ${action}.` });
   };
-}
-
-export function validateUserSession(db: AuthDB) {
-  return wrapAsync(async function(req: Request, res: Response, next: NextFunction) {
-    try {
-      const session = await db.getSession(String(req.query.sid || '') || '');
-      if(!session)
-        throw new AuthError('No session found!');
-
-      req.session = session;
-
-      const user = await db.getUser(session.user);
-      if(!user)
-        throw new AuthError('No user found!');
-
-      req.user = user;
-
-    } catch(e) {
-      return handleValidationError(e, req, res, next);
-    }
-    next();
-  });
 }
