@@ -2,7 +2,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./lib",
-    "baseUrl": "src",
     "module": "commonjs",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -15,7 +14,7 @@
     "lib": [ "esnext" ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/lib/**/*.ts"
   ],
   "exclude": [
     "node_modules"
