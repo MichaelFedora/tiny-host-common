@@ -1,0 +1,165 @@
+@import 'colors.scss';
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 150ms;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+html {
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+  background-color: $white-bis;
+  color: $text;
+}
+
+button {
+  border: 1px solid;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+  color: $black-ter;
+
+  &.sub {
+    font-weight: 300;
+    color: $grey-darker;
+  }
+}
+
+@for $i from 1 through 6 {
+  h#{$i} {
+    font-size: nth($sizes, $i);
+    &.sub { font-size: nth($sizes, $i); }
+  }
+}
+
+div.field {
+  display: flex;
+  flex-flow: column wrap;
+
+  > span {
+    &.error { color: $danger; }
+    font-size: 0.75em;
+    padding: 0.1em 0.5em;
+    // height: 0.75em * 1.15;
+  }
+
+  &:not(:last-child) { margin-bottom: 0.5em; }
+}
+
+input, button {
+  padding: calc(0.5em - 1px);
+  border-radius: 5px;
+  border: 1px solid $grey-lighter;
+
+  &:focus-visible { outline: none; }
+  &:focus {
+    box-shadow: 0 0 3px $primary;
+    border: 1px solid $primary;
+  }
+
+  &.rounded {
+    padding-left: calc(1em + 0.25em);
+    padding-right: calc(1em + 0.25em);
+    border-radius: $radius-rounded;
+  }
+}
+
+a {
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; color: $primary; }
+  &.disabled { pointer-events: none; opacity: 0.5; }
+}
+
+button, a.button {
+  background: transparent;
+  cursor: pointer;
+  padding-left: calc(0.75em - 1px);
+  padding-right: calc(0.75em - 1px);
+  color: inherit;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; color: inherit; }
+  &:hover:not(:disabled) { border-color: $primary; }
+
+  &.primary, &.success, &.warning, &.danger, &.info { border: 1px solid transparent; }
+
+  @each $name, $color in $themes {
+    &.#{$name} {
+      background-color: $color;
+      @if $name == "warning" { color: $text-dark; }
+      @else { color: $text-light };
+      &:hover:not(:disabled) { background-color: darken($color, 5%); border-color: transparent; }
+      &:focus {
+        box-shadow: 0 0 3px $color;
+        border: 1px solid $color;
+      }
+    }
+  }
+}
+
+input {
+  background: white;
+  color: inherit;
+  box-shadow: inset 0 0 2px $grey-lightest;
+  margin: 3px 0;
+}
+
+div.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  > div.modal-background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.15);
+    z-index: 1024;
+  }
+
+  > div.modal-card {
+    display: flex;
+    flex-flow: column;
+    overflow: hidden;
+    z-index: 1025;
+
+    background-color: $white-bis;
+    border-radius: 5px;
+    box-shadow: 0 0 4px -1px rgba(0, 0, 0, 0.15);
+
+
+    > * { padding: 1rem; }
+    > :not(section) {
+      background-color: $grey-lightest;
+    }
+
+    > header {
+      color: $black-ter;
+      font-size: $size-3;
+      font-weight: bold;
+      border-bottom: 1px solid $grey-lighter;
+    }
+    // > section { }
+    > footer {
+      display: flex;
+      justify-content: flex-end;
+      border-top: 1px solid $grey-lighter;
+      > *:not(:last-child) { margin-right: 0.5rem; }
+    }
+  }
+}

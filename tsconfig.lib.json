@@ -1,24 +1,20 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "outDir": "./stage",
-    "baseUrl": "src/web",
-    "module": "es2020",
+    "outDir": "./lib",
+    "module": "commonjs",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "declaration": true,
     "target": "es2019",
     "strict": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "skipLibCheck": true,
-    "lib": [
-      "esnext",
-      "dom"
-    ]
+    "lib": [ "esnext" ]
   },
   "include": [
-    "src/web/**/*.ts",
-    "src/web/**/*.vue",
+    "src/lib/**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -74,6 +74,13 @@ items (user & session types, middleware, errors, etc).
   - managing user & session (logging out, deleting self)
   - handshaking apps & homes
 
+## todo
+
+- permissioned scopes
+  - so other users can list/view/edit your (non-public) files
+  - could be namespaced (/shared/:id/..., where the db contains the perms for
+  shared scope :id)
+
 ## License
 
 MIT
