@@ -43,10 +43,10 @@ export default {
   mounted() {
     this.active = true;
     this.$nextTick(() => this.$refs.pass?.focus());
-    window.addEventListener('keydown', this.onKeydown);
+    window.addEventListener('keyup', this.onKey);
   },
   destroyed() {
-    window.removeEventListener('keydown', this.onKeydown);
+    window.removeEventListener('keyup', this.onKey);
   },
   methods: {
     confirm() {
@@ -71,7 +71,7 @@ export default {
       }, 150);
     },
     /** @param ev {KeyboardEvent} */
-    onKeydown(ev) {
+    onKey(ev) {
       if(!this.active) return;
 
       else if(ev.key === 'Escape')

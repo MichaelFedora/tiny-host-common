@@ -13,7 +13,7 @@
     <section>
       <p class='content'>{{message}}</p>
       <div class='field' v-if='input'>
-        <input :type='input.type' :placeholder='input.placeholder' :required='input.required' v-model='text' />
+        <input ref='input' :type='input.type' :placeholder='input.placeholder' :required='input.required' v-model='text' />
         <span class='error'>{{ input.required && text === '' ? 'required' : '' }}</span>
       </div>
     </section>
@@ -57,11 +57,11 @@ export default {
   },
   mounted() {
     this.active = true;
-    this.$nextTick(() => this.$refs.submit?.focus());
-    window.addEventListener('keydown', this.onKeydown);
+    this.$nextTick(() => this.input ? this.$refs.input?.focus() : this.$refs.submit?.focus());
+    window.addEventListener('keyup', this.onKey);
   },
   destroyed() {
-    window.removeEventListener('keydown', this.onKeydown);
+    window.removeEventListener('keyup', this.onKey);
   },
   methods: {
     confirm() {
@@ -86,7 +86,7 @@ export default {
       }, 150);
     },
     /** @param ev {KeyboardEvent} */
-    onKeydown(ev) {
+    onKey(ev) {
       if(!this.active) return;
 
       if(ev.key === 'Enter')
