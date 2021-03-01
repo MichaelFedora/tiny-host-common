@@ -1,8 +1,20 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import dataBus from './data-bus';
-import { handleError } from '../utility';
+import { handleError as modalHandleError } from '../utility';
 
 const url = location.origin;
+
+
+
+function handleError(e: AxiosError) {
+  if(!e)
+    return;
+
+  if(e.response?.status === 403 && e.response?.data?.message === 'No session found!')
+    dataBus.clear();
+
+  return modalHandleError(e);
+}
 
 class LocalApi {
 
@@ -42,7 +54,7 @@ class LocalApi {
   public get auth() { return this._auth; }
 
   async getSelf(): Promise<{ id: string, username: string }> {
-    const self = await axios.get(`${url}/self?sid=${dataBus.session}`).then(res => res.data).catch(handleError);
+    const self = await axios.get(`${url}/self?sid=${dataBus.session}`).then(res => res.data).catch(e => { handleError(e); throw e; });
     dataBus.user = self;
     return self;
   }

@@ -45,7 +45,7 @@ const v = new Vue({
 (async () => {
   // hmm...
   if(dataBus.session)
-    await localApi.getSelf();
+    await localApi.getSelf().catch(() => { });
 
 })().then(() => {
   console.log('Initialized Main!');
