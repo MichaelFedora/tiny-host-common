@@ -82,7 +82,7 @@ export class AuthApi {
         throw new NotAllowedError('Password mismatch.');
 
       const salt = randomBytes(128).toString('hex');
-      const pass = hash(salt, req.body.newpass);
+      const pass = await hash(salt, req.body.newpass);
 
       await db.putUser(req.user.id, Object.assign(req.user, { salt, pass }));
       const sessions = await db.getSessionsForUser(req.user.id);
