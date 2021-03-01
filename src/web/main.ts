@@ -33,7 +33,7 @@ if(docs) {
 const v = new Vue({
   router,
   el: '#app',
-  components: { SvgIcon, AppComponent },
+  components: { AppComponent },
   data: { loaded: false },
   render(h) {
     if(this.loaded) {

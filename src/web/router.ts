@@ -1,12 +1,17 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-const HomePage = () => import('./pages/home/home');
-// const SettingsPage = () => import('./pages/settings/settings');
-const LoginPage = () => import('./pages/login/login');
+// @ts-ignore
+const HomePage = () => import('pages/home.vue');
+// @ts-ignore
+const SessionsPage = () => import('pages/sessions.vue');
+// @ts-ignore
+const LoginPage = () => import('pages/login.vue');
 // const HandshakePage = () => import('./pages/handshake/handshake');
-import NotFoundPage from './pages/not-found/not-found';
-import dataBus from './services/data-bus';
+
+// @ts-ignore
+import NotFoundPage from 'pages/not-found.vue';
+import dataBus from 'services/data-bus';
 
 
 Vue.use(VueRouter);
@@ -14,8 +19,8 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   mode: 'history',
   routes: [
-    { path: '/', component: HomePage, name: 'home' }, // app shortcuts
-    // { path: '/settings', component: SettingsPage, name: 'settings' }, // managing connections
+    { path: '/', component: HomePage, name: 'home' }, // main "menu"
+    { path: '/sessions', component: SessionsPage, name: 'sessions' }, // managing sessions
     { path: '/login', component: LoginPage, name: 'login' }, // loggin in (obv)
     // { path: '/handshake', component: HandshakePage, name: 'handshake' }, // loggin in (obv)
     { path: '**', component: NotFoundPage, name: 'not-found' }

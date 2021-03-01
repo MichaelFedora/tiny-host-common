@@ -4,9 +4,13 @@
   <p>Couldn't find the page you were looking for. Try going <router-link to='/'>Home</router-link>?</p>
 </div>
 </template>
-<script src='./not-found.ts'></script>
+<script>
+export default {
+  name: 'tiny-not-found'
+}
+</script>
 <style lang='scss'>
-#tiny-not-found {
+div#tiny-not-found {
   padding: 1rem;
   padding-top: 1.5rem;
 }

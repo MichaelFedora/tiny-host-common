@@ -1,6 +1,7 @@
-import { CreateElement, PluginFunction, PluginObject } from 'vue';
+import { CreateElement, PluginObject } from 'vue';
 import { AxiosError } from 'axios';
-import Modal from './components/modal/modal';
+// @ts-ignore
+import Modal from 'components/modal.vue';
 
 export function makeCenterStyle() {
   return {
@@ -39,8 +40,9 @@ let localVueInstance: typeof window.Vue;
 export async function openModal<T = any>(options: {
   title: string,
   message: string,
-  type?: '' | 'danger' | 'success',
+  type?: '' | 'primary' | 'success' | 'warning' | 'danger' | 'info',
   alert?: boolean,
+  prompt?: { type?: string, placeholder?: string, required?: boolean }
 }) {
 
   const vm = typeof window !== 'undefined' && window.Vue ? window.Vue : localVueInstance || VueInstance;
@@ -52,6 +54,24 @@ export async function openModal<T = any>(options: {
   const component = new ModalComponent({
     el: div,
     propsData: options
+  });
+
+  return new Promise<T>(res => {
+    component.$on('confirm', (event: T) => { res(event); });
+    component.$on('cancel', () => res(undefined));
+  });
+}
+export async function openCustomModal<T = any>(modal: any, propsData?: any) {
+
+  const vm = typeof window !== 'undefined' && window.Vue ? window.Vue : localVueInstance || VueInstance;
+  const ModalComponent = vm.extend(modal);
+
+  const div = document.createElement('div');
+  document.body.append(div);
+
+  const component = new ModalComponent({
+    el: div,
+    propsData
   });
 
   return new Promise<T>(res => {

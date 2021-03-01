@@ -10,16 +10,14 @@
 
 html {
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
-  box-sizing: border-box;
-  background-color: $white-bis;
+  background-color: $background;
   color: $text;
 }
 
-button {
-  border: 1px solid;
-}
+* { box-sizing: border-box; }
 
-h1,h2,h3,h4,h5,h6 {
+h1,h2,h3,h4,h5,h6,
+.h1,.h2,.h3,.h4,.h5,.h6 {
   margin-top: 0;
   margin-bottom: 0.5em;
   font-weight: bold;
@@ -32,7 +30,7 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 @for $i from 1 through 6 {
-  h#{$i} {
+  h#{$i}, .h#{$i} {
     font-size: nth($sizes, $i);
     &.sub { font-size: nth($sizes, $i); }
   }
@@ -52,7 +50,8 @@ div.field {
   &:not(:last-child) { margin-bottom: 0.5em; }
 }
 
-input, button {
+input, button, .button {
+  display: inline-block;
   padding: calc(0.5em - 1px);
   border-radius: 5px;
   border: 1px solid $grey-lighter;
@@ -74,28 +73,55 @@ a {
   text-decoration: none;
   cursor: pointer;
 
-  &:hover { text-decoration: underline; color: $primary; }
-  &.disabled { pointer-events: none; opacity: 0.5; }
+  &:not(.button) {
+    &:hover { text-decoration: underline; color: $primary; }
+    &.disabled { pointer-events: none; opacity: 0.5; }
+    &:visited { color: darken($primary, 5%); }
+  }
 }
 
-button, a.button {
-  background: transparent;
+button, .button {
+  background: $background;
   cursor: pointer;
   padding-left: calc(0.75em - 1px);
   padding-right: calc(0.75em - 1px);
   color: inherit;
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; color: inherit; }
-  &:hover:not(:disabled) { border-color: $primary; }
+  min-width: 4.67em;
+  height: 2.5em;
 
-  &.primary, &.success, &.warning, &.danger, &.info { border: 1px solid transparent; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; color: inherit; }
+  &:hover:not(:disabled) { text-decoration: none; border-color: $primary; }
+
+  &.icon {
+    background: transparent;
+    min-height: 24px;
+    min-width: 24px;
+    height: 32px;
+    width: 32px;
+    padding: 3px;
+    line-height: 0;
+
+    &-trim {
+      background: transparent;
+      min-height: 24px;
+      min-width: 24px;
+      line-height: 0;
+
+      height: auto;
+      width: auto;
+      padding: 0;
+      border: none;
+    }
+  }
 
   @each $name, $color in $themes {
     &.#{$name} {
       background-color: $color;
+      border: 1px solid transparent;
       @if $name == "warning" { color: $text-dark; }
       @else { color: $text-light };
-      &:hover:not(:disabled) { background-color: darken($color, 5%); border-color: transparent; }
+      &:hover:not(:disabled) { background-color: darken($color, 5%); border-color: $color; }
       &:focus {
         box-shadow: 0 0 3px $color;
         border: 1px solid $color;
@@ -136,9 +162,11 @@ div.modal {
     display: flex;
     flex-flow: column;
     overflow: hidden;
+    min-width: 320px;
+    max-width: 480px;
     z-index: 1025;
 
-    background-color: $white-bis;
+    background-color: $background;
     border-radius: 5px;
     box-shadow: 0 0 4px -1px rgba(0, 0, 0, 0.15);
 
