@@ -3,6 +3,7 @@ import { AuthDB } from './auth-db';
 export declare class AuthApi {
     private _router;
     get router(): Router;
+    private validateScopes;
     constructor(config: {
         whitelist?: string[];
         requireScopes?: boolean;

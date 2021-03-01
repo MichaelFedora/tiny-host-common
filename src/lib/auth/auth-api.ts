@@ -15,6 +15,21 @@ export class AuthApi {
   private _router: Router;
   get router() { return this._router; }
 
+  private validateScopes(scopes: string, requireScopes = false) {
+    let ret: string[];
+
+    try {
+      ret = JSON.parse(scopes);
+      if(!(ret instanceof Array) || (requireScopes  && !ret.length) || ret.findIndex(a => !a.startsWith('/')) >= 0)
+        throw new Error();
+
+    } catch(e) {
+      throw new MalformedError('Could not parse scopes query; should be a JSON array of paths that start with "/".');
+    }
+
+    return ret;
+  }
+
   constructor(config: {
     whitelist?: string[]
     requireScopes?: boolean,
@@ -25,7 +40,7 @@ export class AuthApi {
   db: AuthDB,
   router = Router()) {
 
-    config = Object.assign({ requireScopes: false, allowHandshakes: false, allowMasterKeys: true, handshakeExpTime: 300000 }, config);
+    config = Object.assign({ requireScopes: true, allowHandshakes: true, allowMasterKeys: true, handshakeExpTime: 300000 }, config);
 
     this._router = router;
 
@@ -39,9 +54,6 @@ export class AuthApi {
       if(config.whitelist && !config.whitelist.includes(req.body.username))
         throw new AuthError('Whitelist is active.');
 
-      if(config.requireScopes && (!req.body.scopes || !(req.body.scopes instanceof Array)))
-        throw new AuthError('Must provide scope(s)!');
-
       const user = await db.getUserFromUsername(req.body.username);
       if(!user)
         throw new AuthError('Username / password mismatch.');
@@ -50,7 +62,7 @@ export class AuthApi {
       if(user.pass !== pass)
         throw new AuthError('Username / password mismatch.');
 
-      res.send(await db.addSession(user.id, req.body.scopes));
+      res.send(await db.addSession(user.id, ['!user', '/']));
     }), handleValidationError);
 
     authRouter.post('/register', json(), wrapAsync(async (req, res) => {
@@ -75,6 +87,9 @@ export class AuthApi {
     }));
 
     authRouter.post('/change-pass', validateSession, json(), wrapAsync(async (req, res) => {
+      if(!req.session.scopes.includes('!user'))
+        throw new NotAllowedError('Must be a user!');
+
       if(!req.body.password || !req.body.newpass)
         throw new MalformedError('Body must have a password, and a newpass.');
 
@@ -85,8 +100,38 @@ export class AuthApi {
       const pass = await hash(salt, req.body.newpass);
 
       await db.putUser(req.user.id, Object.assign(req.user, { salt, pass }));
-      const sessions = await db.getSessionsForUser(req.user.id);
+      const sessions = await db.getSessionIdsForUser(req.user.id);
       await db.delManySessions(sessions.filter(a => a !== req.session.id));
+    }));
+
+    authRouter.get('/sessions', validateSession, wrapAsync(async (req, res) => {
+      if(!req.session.scopes.includes('!user'))
+        throw new NotAllowedError('Must be a user!');
+
+      const sessions = await db.getSessionsForUser(req.user.id);
+      for(const sess of sessions)
+        delete sess.user;
+
+      res.json(sessions);
+    }));
+
+    authRouter.delete('/sessions/:id', validateSession, wrapAsync(async (req, res) => {
+      if(!req.session.scopes.includes('!user'))
+        throw new NotAllowedError('Must be a user!');
+
+      const sess = await db.getSession(req.params.id);
+      if(!sess || sess.user !== req.user.id) throw new NotFoundError('No session found with the id ' + req.params.id + ' for user ' + req.user.username + '!');
+      await db.delSession(sess.id);
+      res.sendStatus(204);
+    }));
+
+    authRouter.delete('/sessions', validateSession, wrapAsync(async (req, res) => {
+      if(!req.session.scopes.includes('!user'))
+        throw new NotAllowedError('Must be a user!');
+
+      const sessions = await db.getSessionIdsForUser(req.params.id);
+      await db.delManySessions(sessions.filter(a => a !== req.session.id));
+      res.sendStatus(204);
     }));
 
     authRouter.post('/logout', validateSession, wrapAsync(async (req, res) => {
@@ -117,13 +162,7 @@ export class AuthApi {
         };
 
         if(req.query.scopes) {
-          try {
-            info.scopes = JSON.parse(req.query.scopes as string);
-            if(!(info.scopes instanceof Array))
-              throw new Error();
-          } catch(e) {
-            throw new MalformedError('Could not parse scopes query; should be a JSON array.');
-          }
+          info.scopes = this.validateScopes(req.query.scopes as string);
         } else
           delete info.scopes;
 
@@ -133,8 +172,8 @@ export class AuthApi {
       }))
 
       handshakeRouter.use('/:id', validateSession, wrapAsync(async (req, res, next) => {
-        if(!req.user)
-          throw new MalformedError('Can only access handshakes as a user!');
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
 
         req.handshake = await db.getHandshake(req.params.id);
         if(!req.handshake)
@@ -150,6 +189,9 @@ export class AuthApi {
       }));
 
       handshakeRouter.get('/:id', wrapAsync(async (req, res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         res.json({
           redirect: req.handshake.redirect,
           scopes: req.handshake.scopes
@@ -157,6 +199,9 @@ export class AuthApi {
       }));
 
       handshakeRouter.get('/:id/approve', wrapAsync(async (req, res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         let code: string;
         do {
           code = randomBytes(24).toString('hex');
@@ -174,6 +219,9 @@ export class AuthApi {
       }));
 
       handshakeRouter.get('/:id/cancel', wrapAsync(async (req, res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         await db.delHandshake(req.handshake.id);
         res.redirect(req.handshake.redirect + '?error=access_denied');
       }));
@@ -206,15 +254,24 @@ export class AuthApi {
       const masterKeyRouter = Router();
 
       masterKeyRouter.get('', validateSession, wrapAsync(async (req, res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         res.json(await db.getMasterKeysForUser(req.user.id));
       }));
 
       masterKeyRouter.post('', validateSession, wrapAsync(async (req, res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         const name = ((req.query.name && typeof req.query.name === 'string') ? String(req.query.name) : '') || 'Unknown';
         res.json(db.addMasterKey({ user: req.user.id, name }));
       }));
 
       masterKeyRouter.put('/:id', validateSession, json(), wrapAsync(async (req, res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         if(!req.body || !req.body.name || typeof req.body.name !== 'string')
           throw new MalformedError('Body should be { name: string }!');
 
@@ -227,6 +284,9 @@ export class AuthApi {
       }));
 
       masterKeyRouter.delete('/:id', validateSession, wrapAsync(async (req ,res) => {
+        if(!req.session.scopes.includes('!user'))
+          throw new NotAllowedError('Must be a user!');
+
         const masterkey = await db.getMasterKey(req.params.id);
         if(!masterkey || masterkey.user !== req.user.id)
           throw new NotFoundError('Master key not found!');
@@ -240,20 +300,14 @@ export class AuthApi {
       authRouter.post('/generate-session', wrapAsync(async (req, res) => {
         if(!req.query.key || typeof req.query.key !== 'string')
           throw new MalformedError('?key=.. required!');
+
         if(req.query.scopes ? typeof req.query.scopes !== 'string' : config.requireScopes)
           throw new MalformedError('?scopes=[..] required!');
 
         let scopes: string[];
 
-        if(req.query.scopes) {
-          try {
-            scopes = JSON.parse(String(req.query.scopes));
-            if(!(scopes instanceof Array))
-              throw new Error();
-          } catch(e) {
-            throw new MalformedError('Could not parse scopes query; should be a JSON array.');
-          }
-        }
+        if(req.query.scopes)
+          scopes = this.validateScopes(req.query.scopes as string);
 
         const masterkey = await db.getMasterKey(String(req.query.string));
         if(!masterkey)
@@ -274,8 +328,9 @@ export class AuthApi {
     }), handleError('get-self'));
 
     router.delete('/self', validateSession, wrapAsync(async (req, res) => {
-      if(!req.user)
-        throw new MalformedError('User required!');
+      if(!req.session.scopes.includes('!user'))
+        throw new NotAllowedError('Must be a user!');
+
       if(!req.query.pass || typeof req.query.pass !== 'string')
         throw new MalformedError('?pass=.. required!');
 

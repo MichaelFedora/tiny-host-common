@@ -18,7 +18,8 @@ export declare class AuthDB {
     delSession(session: string): Promise<void>;
     delManySessions(sessions: readonly string[]): Promise<void>;
     cleanSessions(): Promise<void>;
-    getSessionsForUser(user: string): Promise<string[]>;
+    getSessionIdsForUser(user: string): Promise<string[]>;
+    getSessionsForUser(user: string): Promise<Session[]>;
     addUser(user: User): Promise<string>;
     putUser(id: string, user: User): Promise<void>;
     getUser(id: string): Promise<User>;

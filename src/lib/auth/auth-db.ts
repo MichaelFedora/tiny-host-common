@@ -31,7 +31,7 @@ export class AuthDB {
 
     this.onUserDelete.subscribe(async user => {
       try {
-        const sessions = await this.getSessionsForUser(user.id);
+        const sessions = await this.getSessionIdsForUser(user.id);
         await this.delManySessions(sessions);
       } catch(e) {
         console.error('Error deleting sessions for deleted user "' + user.username + '" (' + user.id + ')!');
@@ -41,7 +41,7 @@ export class AuthDB {
 
   // sessions
 
-  async addSession(user: string, scopes: readonly string[] = ['/']): Promise<string> {
+  async addSession(user: string, scopes: readonly string[] = []): Promise<string> {
     let id: string;
     do {
       id = v4();
@@ -75,13 +75,13 @@ export class AuthDB {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: Session }) => {
         if((value.created + this.sessionExpTime) > Date.now())
-          sessions.push(key.slice(0, start.length));
+          sessions.push(key.slice(start.length));
       }).on('close', () => res());
     });
     await this.delManySessions(sessions);
   }
 
-  async getSessionsForUser(user: string): Promise<string[]> {
+  async getSessionIdsForUser(user: string): Promise<string[]> {
     const sessions: string[] = [];
     const start = this.scope + 'session!!';
     const end = this.scope + 'session!"'
@@ -89,7 +89,21 @@ export class AuthDB {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: Session }) => {
         if(value.user === user)
-          sessions.push(key.slice(0, start.length));
+          sessions.push(key.slice(start.length));
+      }).on('close', () => res());
+    });
+    return sessions;
+  }
+
+  async getSessionsForUser(user: string): Promise<Session[]> {
+    const sessions: Session[] = [];
+    const start = this.scope + 'session!!';
+    const end = this.scope + 'session!"'
+    await new Promise<void>(res => {
+      const stream = this.db.createReadStream({ gt: start, lt: end });
+      stream.on('data', ({ key, value }: { key: string, value: Session }) => {
+        if(value.user === user)
+          sessions.push({ id: key.slice(start.length), ...value });
       }).on('close', () => res());
     });
     return sessions;
@@ -247,7 +261,7 @@ export class AuthDB {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: MasterKey }) => {
         if(value.user === user)
-          keys.push({ id: key.slice(0, start.length), ...value });
+          keys.push({ id: key.slice(start.length), ...value });
       }).on('close', () => res());
     });
     return keys;
