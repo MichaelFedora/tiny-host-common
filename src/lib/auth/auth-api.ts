@@ -25,6 +25,8 @@ export class AuthApi {
   db: AuthDB,
   router = Router()) {
 
+    config = Object.assign({ requireScopes: false, allowHandshakes: false, allowMasterKeys: true, handshakeExpTime: 300000 }, config);
+
     this._router = router;
 
     const validateSession = validateUserSession(db);

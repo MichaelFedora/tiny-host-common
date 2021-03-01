@@ -17,15 +17,17 @@ export class AuthDB {
   public get onUserDelete() { return this._onUserDelete.asObservable(); }
 
   constructor(
-    config: { sessionExpTime: number, handshakeExpTime: number },
+    config: { sessionExpTime?: number, handshakeExpTime?: number },
     db: LevelUp,
     private scope = '') {
     if(scope && !scope.endsWith('!!'))
       this.scope = scope + '!!';
 
     this._db = db;
-    this.sessionExpTime = config.sessionExpTime;
-    this.handshakeExpTime = config.handshakeExpTime;
+    if(config.sessionExpTime)
+      this.sessionExpTime = config.sessionExpTime;
+    if(config.handshakeExpTime)
+      this.handshakeExpTime = config.handshakeExpTime;
 
     this.onUserDelete.subscribe(async user => {
       try {

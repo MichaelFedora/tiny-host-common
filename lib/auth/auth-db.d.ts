@@ -10,8 +10,8 @@ export declare class AuthDB {
     private _onUserDelete;
     get onUserDelete(): import("rxjs").Observable<User>;
     constructor(config: {
-        sessionExpTime: number;
-        handshakeExpTime: number;
+        sessionExpTime?: number;
+        handshakeExpTime?: number;
     }, db: LevelUp, scope?: string);
     addSession(user: string, scopes?: readonly string[]): Promise<string>;
     getSession(session: string): Promise<Session>;
