@@ -81,6 +81,7 @@ items (user & session types, middleware, errors, etc).
   - could be namespaced (/shared/:id/..., where the db contains the perms for
   shared scope :id)
 - session descriptors; show who generated it (like app domain)
+- handshakes page!
 
 ## License
 
