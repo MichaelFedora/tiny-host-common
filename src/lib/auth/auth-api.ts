@@ -265,7 +265,7 @@ export class AuthApi {
           throw new NotAllowedError('Must be a user!');
 
         const name = ((req.query.name && typeof req.query.name === 'string') ? String(req.query.name) : '') || 'Unknown';
-        res.json(db.addMasterKey({ user: req.user.id, name }));
+        res.json(await db.addMasterKey({ user: req.user.id, name }));
       }));
 
       masterKeyRouter.put('/:id', validateSession, json(), wrapAsync(async (req, res) => {
@@ -317,7 +317,7 @@ export class AuthApi {
         if(!user)
           throw new NotFoundError('User not found!');
 
-        res.json(db.addSession(user.id, scopes));
+        res.json(await db.addSession(user.id, scopes));
       }));
     }
 

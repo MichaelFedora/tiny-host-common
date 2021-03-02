@@ -255,8 +255,8 @@ export class AuthDB {
 
   async getMasterKeysForUser(user: string): Promise<MasterKey[]> {
     const keys: MasterKey[] = [];
-    const start = this.scope + 'session!!';
-    const end = this.scope + 'session!"'
+    const start = this.scope + 'masterkey!!';
+    const end = this.scope + 'masterkey!"'
     await new Promise<void>(res => {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: MasterKey }) => {
