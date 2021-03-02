@@ -80,6 +80,7 @@ items (user & session types, middleware, errors, etc).
   - so other users can list/view/edit your (non-public) files
   - could be namespaced (/shared/:id/..., where the db contains the perms for
   shared scope :id)
+- session descriptors; show who generated it (like app domain)
 
 ## License
 
