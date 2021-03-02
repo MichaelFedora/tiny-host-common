@@ -42,7 +42,7 @@ export async function openModal<T = any>(options: {
   message: string,
   type?: '' | 'primary' | 'success' | 'warning' | 'danger' | 'info',
   alert?: boolean,
-  prompt?: { type?: string, placeholder?: string, required?: boolean }
+  prompt?: { type?: string, placeholder?: string, required?: boolean, readonly?: boolean, value?: string | number }
 }) {
 
   const vm = typeof window !== 'undefined' && window.Vue ? window.Vue : localVueInstance || VueInstance;

@@ -13,7 +13,12 @@
     <section>
       <p class='content'>{{message}}</p>
       <div class='field' v-if='input'>
-        <input ref='input' :type='input.type' :placeholder='input.placeholder' :required='input.required' v-model='text' />
+        <input ref='input' :class='{ [type]: true }'
+          :type='input.type'
+          :placeholder='input.placeholder'
+          :required='input.required'
+          :readonly='input.readonly'
+          v-model='text' />
         <span class='error'>{{ input.required && text === '' ? 'required' : '' }}</span>
       </div>
     </section>
@@ -51,14 +56,23 @@ export default {
      * @returns {{type: string, placeholder: string}} input object
      */
     input() {
-      if(!this.prompt) return null;
-      else return Object.assign({ type: 'text', placeholder: '', required: false }, this.prompt);
+      if(!this.prompt)
+        return null;
+
+      return Object.assign({
+        type: 'text',
+        placeholder: '',
+        required: false,
+        readonly: Boolean(this.alert)
+      }, this.prompt);
     }
   },
   mounted() {
     this.active = true;
     this.$nextTick(() => this.input ? this.$refs.input?.focus() : this.$refs.submit?.focus());
     window.addEventListener('keyup', this.onKey);
+    if(this.prompt?.value)
+      this.text = this.prompt.value;
   },
   destroyed() {
     window.removeEventListener('keyup', this.onKey);

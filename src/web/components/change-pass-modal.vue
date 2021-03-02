@@ -21,7 +21,7 @@
     </section>
     <footer>
       <button @click='cancel'>cancel</button>
-      <button class='warning' :disabled='!password || !newpass' @click='confirm'>{{ alert ? 'ok' : 'confirm' }}</button>
+      <button class='warning' :disabled='!password || !newpass' @click='confirm'>confirm</button>
     </footer>
   </div>
 </div>

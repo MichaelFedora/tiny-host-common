@@ -67,6 +67,24 @@ class LocalApi {
 
     cancelHandshake(handshake: string): void {
       location.href = `${url}/auth/handshake/${handshake}/cancel?sid=${dataBus.session}`
+    },
+
+    async getMasterKeys(): Promise<{ id: string, name: string }[]> {
+      return axios.get(`${url}/auth/master-key?sid=${dataBus.session}`).then(res => res.data, e => { handleError(e); throw e; });
+    },
+
+    async addMasterKey(name: string): Promise<string> {
+      return axios.post(`${url}/auth/master-key?name=${name}&sid=${dataBus.session}`).then(
+        res => res.data,
+        e => { handleError(e); throw e; });
+    },
+
+    async updateMasterKey(id: string, name: string) {
+      await axios.put(`${url}/auth/master-key/${id}?sid=${dataBus.session}`, { name });
+    },
+
+    async delMasterKey(id: string) {
+      await axios.delete(`${url}/auth/master-key/${id}?sid=${dataBus.session}`);
     }
   });
 
