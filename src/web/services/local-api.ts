@@ -35,7 +35,7 @@ class LocalApi {
         .then(res => dataBus.session = String(res.data), handleError);
     },
 
-    async getSessions(): Promise<{ id: string, scopes: string, created: number }> {
+    async getSessions(): Promise<{ id: string, scopes: string, created: number }[]> {
       return axios.get(`${url}/auth/sessions?sid=${dataBus.session}`)
         .then(res => res.data).catch(e => { handleError(e); throw e; });
     },

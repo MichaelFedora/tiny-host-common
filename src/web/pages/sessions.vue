@@ -59,7 +59,9 @@
   </div>
 </div>
 </template>
-<script>
+<script lang='ts'>
+import Vue from 'vue';
+//@ts-ignore
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiArrowLeft, mdiPlus } from '@mdi/js';
 
@@ -68,7 +70,7 @@ import localApi from 'services/local-api';
 
 import { openModal } from 'utility';
 
-export default {
+export default Vue.extend({
   name: 'tiny-sessions',
   components: { SvgIcon },
   data() { return {
@@ -118,25 +120,21 @@ export default {
 
       this.refresh();
     },
-    async edit(type, key) {
+    async edit(type: 'mk' | 's', key: any) {
       switch(type) {
         case 'mk':
           this.$set(key, 'editName', key.name);
       }
       this.$set(key, 'editing', true);
     },
-    cancel(type, key) {
+    cancel(type: 'mk' | 's', key: any) {
       this.$set(key, 'editing', false);
       switch(type) {
         case 'mk':
           this.$set(key, 'editName', key.name);
       }
     },
-    /**
-     * @param type {'s' | 'mk'}
-     * @param id {any}
-     */
-    async save(type, key) {
+    async save(type: 's' | 'mk', key: any) {
       switch(type) {
         case 'mk':
           if(!key.editName) return;
@@ -146,11 +144,7 @@ export default {
       }
       this.cancel(type, key);
     },
-    /**
-     * @param type {'s' | 'mk'}
-     * @param id {string}
-     */
-    async revoke(type, id) {
+    async revoke(type: 's' | 'mk', id: string) {
       switch(type) {
         case 's':
           await localApi.auth.delSession(id).catch(() => { });
@@ -160,7 +154,7 @@ export default {
       return this.refresh();
     }
   }
-}
+});
 </script>
 <style lang='scss'>
 @import 'colors.scss';

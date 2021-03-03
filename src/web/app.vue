@@ -4,10 +4,11 @@
   <router-view />
 </div>
 </template>
-<script>
+<script lang='ts'>
+import Vue from 'vue';
 import dataBus from 'services/data-bus';
 
-export default {
+export default Vue.extend({
   name: 'app',
   data() { return {
     loggedIn: Boolean(dataBus.session),
@@ -34,7 +35,7 @@ export default {
       }
     }
   },
-};
+});
 </script>
 <style lang='scss'>
 #app {

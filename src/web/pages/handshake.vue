@@ -16,19 +16,19 @@
   </div>
 </div>
 </template>
-<script>
+<script lang='ts'>
+import Vue from 'vue';
 import dataBus from 'services/data-bus';
 import localApi from 'services/local-api';
 
-export default {
+export default Vue.extend({
   data() { return {
     working: false,
 
     username: dataBus.user?.username || '{current user}',
 
-    app: 'my app',
-    /** @type {string[]} */
-    scopes: ['/public', '/appdata']
+    app: '',
+    scopes: [] as string[]
   }; },
   computed: {
     handshake() { return String(this.$route.query.handshake); },
@@ -54,7 +54,7 @@ export default {
         localApi.auth.approveHandshake(this.handshake);
     }
   }
-};
+});
 </script>
 <style lang='scss'>
 #tiny-handshake {

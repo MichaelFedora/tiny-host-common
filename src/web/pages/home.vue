@@ -8,7 +8,8 @@
   </div>
 </div>
 </template>
-<script>
+<script lang='ts'>
+import Vue from 'vue';
 import dataBus from 'services/data-bus';
 import localApi from 'services/local-api';
 
@@ -16,7 +17,7 @@ import { openModal, openCustomModal } from 'utility';
 
 import changePassModal from 'components/change-pass-modal.vue';
 
-export default {
+export default Vue.extend({
   name: 'tiny-home',
   data() { return {
     working: false,
@@ -55,7 +56,7 @@ export default {
       }
     }
   }
-};
+});
 </script>
 <style lang='scss'>
 #tiny-home {

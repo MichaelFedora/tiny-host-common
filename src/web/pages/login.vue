@@ -27,12 +27,13 @@
   </div>
 </div>
 </template>
-<script>
+<script lang='ts'>
+import Vue from 'vue';
 import localApi from 'services/local-api';
 import dataBus from 'services/data-bus';
 import { openModal } from 'utility';
 
-export default {
+export default Vue.extend({
   name: 'tiny-login',
 
   data() { return {
@@ -53,13 +54,12 @@ export default {
     }
   },
   computed: {
-    /** @returns {boolean} */
-    valid() { return this.username && this.password && /\w{4,}/.test(this.password) && (!this.registering || this.confirmpass === this.password); }
+    valid(): boolean { return this.username && this.password && /\w{4,}/.test(this.password) && (!this.registering || this.confirmpass === this.password); }
   },
   mounted() {
     if(this.$route.query.username)
       this.username = '' + this.$route.query.username;
-    this.$refs.username?.focus();
+    (this.$refs.username as HTMLInputElement)?.focus();
   },
   methods: {
     async register() {
@@ -88,7 +88,7 @@ export default {
       let success = await localApi.auth.login(this.username, this.password).then(() => true, e => false);
 
       if(!success)
-        this.$refs.username?.focus();
+        (this.$refs.username as HTMLInputElement)?.focus();
 
       if(success)
         success = await localApi.getSelf().then(() => true, () => false);
@@ -104,7 +104,7 @@ export default {
       this.working = false;
     }
   }
-};
+});
 </script>
 <style lang='scss'>
 #tiny-login {
