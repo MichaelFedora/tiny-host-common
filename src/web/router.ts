@@ -7,7 +7,8 @@ const HomePage = () => import('pages/home.vue');
 const SessionsPage = () => import('pages/sessions.vue');
 // @ts-ignore
 const LoginPage = () => import('pages/login.vue');
-// const HandshakePage = () => import('./pages/handshake/handshake');
+// @ts-ignore
+const HandshakePage = () => import('pages/handshake.vue');
 
 // @ts-ignore
 import NotFoundPage from 'pages/not-found.vue';
@@ -22,14 +23,18 @@ const router = new VueRouter({
     { path: '/', component: HomePage, name: 'home' }, // main "menu"
     { path: '/sessions', component: SessionsPage, name: 'sessions' }, // managing sessions
     { path: '/login', component: LoginPage, name: 'login' }, // loggin in (obv)
-    // { path: '/handshake', component: HandshakePage, name: 'handshake' }, // loggin in (obv)
+    { path: '/handshake', component: HandshakePage, name: 'handshake' }, // handshaking apps
     { path: '**', component: NotFoundPage, name: 'not-found' }
   ]
 });
 
 router.beforeEach((to, from, next) => {
+  const baseTitle = 'tiny ' + (dataBus.type ? dataBus.type + 's' : 'host');
+
   if(to.path !== from.path) {
-    if(to.path.length > 1) {
+    if(to.name)
+      document.title = baseTitle + ' - ' + to.name;
+    else if(to.path.length > 1) {
 
       const sdir = [];
       let buff = '';
@@ -41,8 +46,9 @@ router.beforeEach((to, from, next) => {
         }
       });
 
-      document.title = 'tiny host - ' + sdir.join(' - ');
-    } else document.title = 'tiny host';
+      document.title = baseTitle + ' - ' + sdir.join(' - ');
+    } else
+      document.title = baseTitle;
   }
 
   if(!dataBus.session && !/^\/login/.test(to.path))

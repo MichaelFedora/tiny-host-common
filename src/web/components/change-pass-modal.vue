@@ -11,11 +11,11 @@
     </header>
     <section>
       <div class='field'>
-        <input type='password' ref='pass' required placeholder='old password' v-model='password' />
+        <input class='warning' type='password' ref='pass' required placeholder='old password' v-model='password' />
         <span class='error'>{{ password === '' ? 'required' : '' }}</span>
       </div>
       <div class='field'>
-        <input type='password' required placeholder='new passwprd' v-model='newpass' @keydown.enter='confirm()' />
+        <input class='warning' type='password' required placeholder='new password' v-model='newpass' @keydown.enter='confirm()' />
         <span class='error'>{{ newpass != undefined ? (newpass === '' ? 'required' : newpass.length < 4 ? 'at least 4 characters' : '') : '' }}</span>
       </div>
     </section>

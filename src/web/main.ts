@@ -1,6 +1,4 @@
 import Vue from 'vue';
-// @ts-ignore
-import SvgIcon from '@jamescoyle/vue-icon';
 
 // @ts-ignore
 import 'normalize.css';
@@ -8,8 +6,10 @@ import './styles.scss';
 
 import { makeInitializerComponent, openModal, UtilityPlugin } from './utility';
 
-import AppComponent from './app/app';
-import LoadingComponent from './components/loading/loading';
+// @ts-ignore
+import AppComponent from './app.vue';
+// @ts-ignore
+import LoadingComponent from './components/loading';
 
 import router from './router';
 import dataBus from 'services/data-bus';
@@ -44,6 +44,8 @@ const v = new Vue({
 
 (async () => {
   // hmm...
+
+  await localApi.getType();
   if(dataBus.session)
     await localApi.getSelf().catch(() => { });
 

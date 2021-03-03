@@ -11,7 +11,7 @@
       <span>{{title}}</span>
     </header>
     <section>
-      <p class='content'>{{message}}</p>
+      <p>{{message}}</p>
       <div class='field' v-if='input'>
         <input ref='input' :class='{ [type]: true }'
           :type='input.type'

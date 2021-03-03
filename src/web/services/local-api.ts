@@ -15,7 +15,7 @@ function handleError(e: AxiosError) {
   if(!dataBus.session && !/^\/login/.test(router.currentRoute.path))
     router.push(`/login?goto=${router.currentRoute.fullPath}`);
 
-  return modalHandleError(e);
+  modalHandleError(e);
 }
 
 class LocalApi {
@@ -57,12 +57,12 @@ class LocalApi {
       await axios.post(`${url}/auth/change-pass?sid=${dataBus.session}`, { password, newpass }).catch(e => { handleError(e); throw e; });
     },
 
-    async getHandshakeInfo(handshake: string): Promise<{ app: string; scopes: string; fileScopes?: string[]; stores: { name: string, url: string }[]; dbs: { name: string, url: string }[] }> {
+    async getHandshakeInfo(handshake: string): Promise<{ app: string; scopes: string[] }> {
       return axios.get(`${url}/auth/handshake/${handshake}?sid=${dataBus.session}`).then(res => res.data, handleError);
     },
 
-    approveHandshake(handshake: string, { store, db }: { store?: string, db?: string }): void {
-      location.href = `${url}/auth/handshake/${handshake}/approve?sid=${dataBus.session}${store ? '&store=' + store : ''}${db ? '&db=' + db : ''}`;
+    approveHandshake(handshake: string): void {
+      location.href = `${url}/auth/handshake/${handshake}/approve?sid=${dataBus.session}`;
     },
 
     cancelHandshake(handshake: string): void {
@@ -89,6 +89,12 @@ class LocalApi {
   });
 
   public get auth() { return this._auth; }
+
+  async getType(): Promise<string> {
+    const type = await axios.get(`${url}/type`).then(res => res.data).catch(e => undefined);
+    dataBus.type = type;
+    return type;
+  }
 
   async getSelf(): Promise<{ id: string, username: string }> {
     const self = await axios.get(`${url}/self?sid=${dataBus.session}`).then(res => res.data).catch(e => { handleError(e); throw e; });

@@ -1,5 +1,5 @@
 <template>
-<div id='tiny-not-found' class='content'>
+<div id='tiny-not-found'>
   <h1>404 Not Found</h1>
   <p>Couldn't find the page you were looking for. Try going <router-link to='/'>Home</router-link>?</p>
 </div>
@@ -9,9 +9,4 @@ export default {
   name: 'tiny-not-found'
 }
 </script>
-<style lang='scss'>
-div#tiny-not-found {
-  padding: 1rem;
-  padding-top: 1.5rem;
-}
-</style>
+<style lang='scss'></style>

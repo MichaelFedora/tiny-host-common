@@ -1,6 +1,5 @@
 <template>
-<div id='tiny-home' class='content'>
-  <h1>home - {{ username }}</h1>
+<div id='tiny-home'>
   <div>
     <router-link class='button info' to='/sessions'><span>Manage Sessions</span></router-link>
     <button class='warning' @click='changePass'><span>Change Password</span></button>
@@ -61,17 +60,9 @@ export default {
 <style lang='scss'>
 #tiny-home {
   position: relative;
-  padding: 1rem;
-  padding-top: 1.5rem;
-  min-height: 100vh;
+  flex-grow: 1;
   display: flex;
   flex-flow: column;
-
-  > h1 {
-    width: 100%;
-  }
-
-  display: flex;
   align-items: center;
 
   > div {

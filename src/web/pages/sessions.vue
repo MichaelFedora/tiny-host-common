@@ -4,7 +4,7 @@
     <router-link class='button icon info' to='/'>
       <svg-icon type='mdi' :path='mdiArrowLeft' />
     </router-link>
-    <span>sessions - {{ username }}</span>
+    <span>sessions</span>
   </h1>
   <template v-if='masterkeys'>
   <h2 class='sub'>
@@ -47,7 +47,7 @@
     <template v-for='(sess, i) of sessions'>
       <span :key='"sess-id-" + i'>{{ sess.id }}</span>
       <div class='scopes' :key='"sess-scopes-" + i'>
-        <span v-for='(scope, j) of sess.scopes' :key='"sess-scope-" + i + "-" + j'>{{scope}}</span>
+        <span v-for='(scope, j) of sess.scopes' :key='"sess-scope-" + i + "-" + j' class='tag'>{{scope}}</span>
       </div>
       <span :key='"sess-created-" + i'>{{ (new Date(sess.created)).toLocaleString() }}</span>
       <div :key='"sess-opts-" + i'>
@@ -165,9 +165,9 @@ export default {
 <style lang='scss'>
 @import 'colors.scss';
 
-div#tiny-sessions {
-  padding: 1rem;
-  padding-top: 1.5rem;
+#tiny-sessions {
+
+  > h1 { margin-bottom: 1em; }
 
   > h1, h2 {
     display: flex;
@@ -200,16 +200,7 @@ div#tiny-sessions {
 
     > div.scopes {
       display: flex;
-      > span {
-        font-size: 0.87rem;
-        padding: 0.33em 0.67em;
-        background-color: $grey-lighter;
-        color: $grey-dark;
-        border-radius: 5px;
-        text-align: center;
-        min-width: 2em;
-        &:not(:last-child) { margin-right: 0.67em; }
-      }
+      > span:not(:last-child) { margin-right: 0.67em; }
     }
   }
 }

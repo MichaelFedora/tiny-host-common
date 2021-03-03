@@ -1,5 +1,5 @@
 <template>
-<div id='tiny-login' class='content'>
+<div id='tiny-login'>
   <h1>login</h1>
   <div class='form'>
     <div class='field'>
@@ -29,6 +29,7 @@
 </template>
 <script>
 import localApi from 'services/local-api';
+import dataBus from 'services/data-bus';
 import { openModal } from 'utility';
 
 export default {
@@ -97,7 +98,8 @@ export default {
           this.$router.push(this.$route.query.goto);
         else
           this.$router.push('/');
-      }
+      } else
+        dataBus.clear();
 
       this.working = false;
     }
@@ -106,11 +108,12 @@ export default {
 </script>
 <style lang='scss'>
 #tiny-login {
-  display: inline-block;
-  left: 50%;
-  top: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
+  display: flex;
+  flex-flow: column nowrap;
+  flex-grow: 1;
+  align-self: center;
+  align-content: center;
+  justify-content: center;
 
   > div#buttons {
     display: flex;

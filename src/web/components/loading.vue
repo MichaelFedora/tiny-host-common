@@ -1,7 +1,11 @@
 <template>
 <div id='tiny-loading'></div>
 </template>
-<script src='./loading.ts'></script>
+<script>
+export default {
+  name: 'tiny-loading'
+}
+</script>
 <style lang='scss'>
 div#tiny-loading {
   position: relative;
