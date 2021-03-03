@@ -46,6 +46,8 @@ export class AuthApi {
 
     const validateSession = validateUserSession(db);
 
+    router.get('/type', (_, res) => res.send(''));
+
     // auth
 
     const authRouter = Router();
