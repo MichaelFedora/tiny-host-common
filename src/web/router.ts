@@ -29,7 +29,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const baseTitle = 'tiny ' + (dataBus.type ? dataBus.type + 's' : 'host');
+  const baseTitle = 'tiny ' + (dataBus.type ? dataBus.type + 's ' : '') + 'host';
 
   if(to.path !== from.path) {
     if(to.name)

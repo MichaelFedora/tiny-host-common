@@ -1,6 +1,6 @@
 <template>
 <div id='app'>
-  <h3>{{type ? type + 's' : 'tiny'}} host<template v-if='loggedIn'> - {{username}}</template></h3>
+  <h3>tiny {{type ? type + 's ' : ''}}host<template v-if='loggedIn'> - {{username}}</template></h3>
   <router-view />
 </div>
 </template>
