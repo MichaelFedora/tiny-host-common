@@ -40,8 +40,8 @@ export default {
     this.working = true;
 
     const appInfo = await localApi.auth.getHandshakeInfo(this.handshake).catch(() => null);
-    // this.app = appInfo?.app || '{broken}';
-    // this.scopes = appInfo?.scopes || [];
+    this.app = appInfo?.app || '{broken}';
+    this.scopes = appInfo?.scopes || [];
 
     this.working = false;
   },
