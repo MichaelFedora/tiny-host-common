@@ -51,18 +51,19 @@ $speed: 86ms !default;
 
 // Variables
 
-$primary: $turquoise;
-$info: $cyan;
-$success: $green;
-$warning: $yellow;
-$danger: $red;
-$light: $white-ter;
-$dark: $grey-darker;
+$primary: $turquoise !default;
+$info: $cyan !default;
+$success: $green !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $white-ter !default;
+$dark: $grey-darker !default;
 
-$themes: ("primary": $primary, "info": $info, "success": $success, "warning": $warning, "danger": $danger, "light": $light, "dark": $dark);
+$themes: ("primary": $primary, "info": $info, "success": $success, "warning": $warning, "danger": $danger, "light": $light, "dark": $dark) !default;
 
-$background: $white-bis;
+$background: $white-bis !default;
 
-$text: $grey-dark;
-$text-dark: $grey-darker;
-$text-light: $grey-lightest;
+$text: $grey-dark !default;
+$text-dark: $grey-darker !default;
+$text-darker: $black-ter !default;
+$text-light: $grey-lightest !default;
