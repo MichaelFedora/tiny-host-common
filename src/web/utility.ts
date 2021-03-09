@@ -1,7 +1,7 @@
 import { CreateElement, PluginObject } from 'vue';
 import { AxiosError } from 'axios';
 // @ts-ignore
-import Modal from 'components/modal.vue';
+import Modal from './components/modal.vue';
 
 export function makeCenterStyle() {
   return {
