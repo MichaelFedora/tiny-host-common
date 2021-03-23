@@ -74,7 +74,7 @@ export class AuthDB {
     await new Promise<void>(res => {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: Session }) => {
-        if((value.created + this.sessionExpTime) > Date.now())
+        if((value.created + this.sessionExpTime) < Date.now())
           sessions.push(key.slice(start.length));
       }).on('close', () => res());
     });
@@ -213,7 +213,7 @@ export class AuthDB {
     await new Promise<void>(res => {
       const stream = this.db.createReadStream({ gt: start, lt: end });
       stream.on('data', ({ key, value }: { key: string, value: Handshake }) => {
-        if((value.created + this.handshakeExpTime) > Date.now())
+        if((value.created + this.handshakeExpTime) < Date.now())
         handshakes.push(key);
       }).on('close', () => res());
     });

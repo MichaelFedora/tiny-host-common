@@ -5,9 +5,9 @@
   "repository": "github:MichaelFedora/tiny-host-common",
   "main": "lib/index",
   "scripts": {
-    "build:lib": "del-cli lib && tsc -p tsconfig.lib.json",
-    "build:web-test": "del-cli web && webpack",
-    "build:web": "del-cli web && webpack --mode=production",
+    "build-lib": "del-cli lib && tsc -p tsconfig.lib.json",
+    "build-web-test": "del-cli web && webpack",
+    "build-web": "del-cli web && webpack --mode=production",
     "start": "node scripts/host.js"
   },
   "keywords": [
