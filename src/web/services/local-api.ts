@@ -20,6 +20,8 @@ function handleError(e: AxiosError) {
 
 class LocalApi {
 
+  public get url() { return url; }
+
   private _auth = Object.freeze({
     async login(username: string, password: string): Promise<void> {
       await axios.post(`${url}/auth/login`, { username, password })

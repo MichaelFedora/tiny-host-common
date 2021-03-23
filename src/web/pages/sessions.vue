@@ -87,7 +87,10 @@ export default Vue.extend({
       this.working = true;
 
       localApi.auth.getSessions().then(res => this.sessions = res, () => { });
-      localApi.auth.getMasterKeys().then(res => this.masterkeys = res, () => this.masterkeys = null);
+      localApi.auth.getMasterKeys().then(res =>
+        this.masterkeys = res.map(key => btoa(JSON.stringify({
+          key, url: localApi.url, type: dataBus.type
+      }))), () => this.masterkeys = null);
 
       this.working = false;
     },
@@ -109,12 +112,14 @@ export default Vue.extend({
       if(!key)
         return;
 
+      const wrapped = btoa(JSON.stringify({ key, url: localApi.url, type: dataBus.type }));
+
       //show it
       openModal({
         title: 'Master Key Added',
         message: 'Add this to your tiny home. It can always be revoked from this '
         + 'page.',
-        prompt: { readonly: true, value: key },
+        prompt: { readonly: true, value: wrapped },
         alert: true
       });
 
