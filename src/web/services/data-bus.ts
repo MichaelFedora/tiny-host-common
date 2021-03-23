@@ -10,7 +10,6 @@ class DataBus {
   public clear() {
     localStorage.clear();
     this.user = null;
-    this.type = undefined;
   }
 };
 
