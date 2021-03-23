@@ -24,6 +24,7 @@
       </div>
       <div :key='"mk-opts-" + i'>
         <template v-if='!mk.editing'>
+          <button class='primary' @click='useMasterKey(mk.id)'>use</button>
           <button class='warning'  @click='edit("mk", mk)'>edit</button>
           <button class='danger' @click='revoke("mk", mk.id)'>revoke</button>
         </template>
@@ -87,10 +88,7 @@ export default Vue.extend({
       this.working = true;
 
       localApi.auth.getSessions().then(res => this.sessions = res, () => { });
-      localApi.auth.getMasterKeys().then(res =>
-        this.masterkeys = res.map(key => btoa(JSON.stringify({
-          key, url: localApi.url, type: dataBus.type
-      }))), () => this.masterkeys = null);
+      localApi.auth.getMasterKeys().then(res => this.masterkeys = res, () => this.masterkeys = null);
 
       this.working = false;
     },
@@ -112,7 +110,7 @@ export default Vue.extend({
       if(!key)
         return;
 
-      const wrapped = btoa(JSON.stringify({ key, url: localApi.url, type: dataBus.type }));
+      const wrapped = btoa(JSON.stringify({ key, url: localApi.url, type: dataBus.type })).replace(/=+$/, '');
 
       //show it
       openModal({
@@ -124,6 +122,17 @@ export default Vue.extend({
       });
 
       this.refresh();
+    },
+    useMasterKey(key: any) {
+      const wrapped = btoa(JSON.stringify({ key, url: localApi.url, type: dataBus.type })).replace(/=+$/, '');
+
+      openModal({
+        title: 'Master Key "' + key.name + '"',
+        message: 'Add this to your tiny home. It can always be revoked from this '
+        + 'page.',
+        prompt: { readonly: true, value: wrapped },
+        alert: true
+      });
     },
     async edit(type: 'mk' | 's', key: any) {
       switch(type) {
