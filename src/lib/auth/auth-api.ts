@@ -311,7 +311,7 @@ export class AuthApi {
         if(req.query.scopes)
           scopes = this.validateScopes(req.query.scopes as string);
 
-        const masterkey = await db.getMasterKey(String(req.query.string));
+        const masterkey = await db.getMasterKey(String(req.query.key));
         if(!masterkey)
           throw new NotFoundError('Master key not found!');
 
