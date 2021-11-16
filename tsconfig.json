@@ -2,7 +2,10 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./stage",
-    "baseUrl": "src/web",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/web/*"]
+    },
     "module": "es2020",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,

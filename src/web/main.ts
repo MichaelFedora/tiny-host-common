@@ -1,25 +1,21 @@
-import Vue from 'vue';
+import { createApp, h, defineComponent, reactive } from 'vue';
 
-// @ts-ignore
 import 'normalize.css';
 import './styles.scss';
 
-import { makeInitializerComponent, openModal, UtilityPlugin } from './utility';
+import { makeInitializerComponent } from './utility';
 
-// @ts-ignore
 import AppComponent from './app.vue';
-// @ts-ignore
-import LoadingComponent from './components/loading';
+import LoadingComponent from './components/loading.vue';
 
 import router from './router';
-import dataBus from 'services/data-bus';
-import localApi from 'services/local-api';
-
-Vue.use(UtilityPlugin);
+import dataBus from '@/services/data-bus';
+import localApi from '@/services/local-api';
+import modals from './services/modals';
 
 console.log('Environment: ', process.env.NODE_ENV);
 
-declare const docs: boolean;
+const docs = import.meta.env.VITE_DOCS || false;
 if(docs) {
   const [_, path, query, hash] = location.href.match(/^([^#?]+)([^#]+)?(#.+)?$/);
   if(query) {
@@ -30,17 +26,22 @@ if(docs) {
   }
 }
 
-const v = new Vue({
-  router,
-  el: '#app',
-  components: { AppComponent },
-  data: { loaded: false },
-  render(h) {
-    if(this.loaded) {
-      return h(AppComponent, { key: 'app' });
-    } else return makeInitializerComponent(h, LoadingComponent);
+const rootData = reactive({ loaded: false });
+
+const root = defineComponent({
+  setup() {
+    return () => {
+      if(rootData.loaded) {
+        return h(AppComponent, { key: 'app' });
+      } else return makeInitializerComponent(LoadingComponent);
+    }
   }
 });
+
+const app = createApp(root);
+app.use(router);
+app.component('tiny-loading', LoadingComponent);
+app.mount('#app');
 
 (async () => {
   // hmm...
@@ -51,10 +52,10 @@ const v = new Vue({
 
 })().then(() => {
   console.log('Initialized Main!');
-  v.loaded = true;
+  rootData.loaded = true;
 }, e => {
   console.error('Error initializing main: ', e.stack || e.message || e);
-  openModal({
+  modals.openRoot({
     title: 'Error',
     message: 'Error initializing main: ' + String(e.message || e),
     type: 'danger',

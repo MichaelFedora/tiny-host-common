@@ -13,7 +13,7 @@ const authDB = new AuthDB({ }, db);
 const authApi = new AuthApi({ }, authDB);
 
 const app = express();
-app.use(cors({ origin: '*', methods: 'GET' }));
+app.use(cors({ origin: '*', methods: 'GET,POST,PUT,DELETE' }));
 app.use(authApi.router);
 app.get('/dump', (req, res) => {
   const data = { };

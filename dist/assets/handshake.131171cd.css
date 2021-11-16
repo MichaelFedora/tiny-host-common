@@ -1,0 +1,1 @@
+#tiny-handshake{display:flex;flex-flow:column nowrap;flex-grow:1;align-self:center;align-content:center;justify-content:center}#tiny-handshake>div#buttons{display:flex;justify-content:flex-end;margin-top:.5rem;margin-bottom:1.5rem}#tiny-handshake>div#buttons>button:not(:last-child){margin-right:.5rem}#tiny-handshake>div#buttons>a{font-size:.8rem}

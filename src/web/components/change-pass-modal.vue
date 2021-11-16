@@ -1,83 +1,37 @@
 <template>
-<transition name='fade'>
-<div v-if='active'
-  class='change-pass-modal modal is-active'
-  role='dialog'
-  aria-modal='modal'>
-  <div class='modal-background' @click='cancel()' />
-  <div class='modal-card'>
-    <header>
-      <span>Change Password</span>
-    </header>
-    <section>
-      <div class='field'>
-        <input class='warning' type='password' ref='pass' required placeholder='old password' v-model='password' />
-        <span class='error'>{{ password === '' ? 'required' : '' }}</span>
-      </div>
-      <div class='field'>
-        <input class='warning' type='password' required placeholder='new password' v-model='newpass' @keydown.enter='confirm()' />
-        <span class='error'>{{ newpass != undefined ? (newpass === '' ? 'required' : newpass.length < 4 ? 'at least 4 characters' : '') : '' }}</span>
-      </div>
-    </section>
-    <footer>
-      <button @click='cancel'>cancel</button>
-      <button class='warning' :disabled='!password || !newpass' @click='confirm'>confirm</button>
-    </footer>
+<Modal :valid='valid' title='Change Password' type='warning' @confirm='confirm()'>
+  <div class='field'>
+    <input class='warning' type='password' ref='passEl' required placeholder='old password' v-model='password' />
+    <span class='error'>{{ password === '' ? 'required' : '' }}</span>
   </div>
-</div>
-</transition>
+  <div class='field'>
+    <input class='warning' type='password' required placeholder='new password' v-model='newpass' @keydown.enter='confirm()' />
+    <span class='error'>{{ newpass != undefined ? (newpass === '' ? 'required' : newpass.length < 4 ? 'at least 4 characters' : '') : '' }}</span>
+  </div>
+</Modal>
 </template>
-<script>
-/** @param el {Element} */
-function removeElement(el) {
-  if (typeof el.remove !== 'undefined') {
-      el.remove()
-  } else if (typeof el.parentNode !== 'undefined' && el.parentNode !== null) {
-      el.parentNode.removeChild(el)
-  }
-}
+<script lang='ts' setup>
+import { ref, onMounted, nextTick, computed } from 'vue';
+import Modal from './modal.vue';
 
-export default {
-  name: 'tiny-change-pass-modal',
-  data() { return { active: false, password: undefined, newpass: undefined }; },
-  mounted() {
-    this.active = true;
-    this.$nextTick(() => this.$refs.pass?.focus());
-    window.addEventListener('keyup', this.onKey);
-  },
-  destroyed() {
-    window.removeEventListener('keyup', this.onKey);
-  },
-  methods: {
-    confirm() {
-      if(!this.active || !this.password || !this.newpass || this.newpass.length < 4) return;
+const passEl = ref<HTMLInputElement>(null);
 
-      this.$emit('confirm', { password: this.password, newpass: this.newpass });
-      this.close();
-    },
-    cancel() {
-      if(!this.active) return;
+const password = ref<string>(undefined);
+const newpass = ref<string>(undefined);
+const valid = computed(() => !Boolean(!password.value || !newpass.value || newpass.value.length < 4));
 
-      this.$emit('cancel');
-      this.close();
-    },
-    close() {
-      if(!this.active) return;
+const emits = defineEmits<{
+  (e: 'confirm', data: { password: string; newpass: string })
+}>();
 
-      this.active = false;
-      setTimeout(() => {
-        this.$destroy();
-        removeElement(this.$el);
-      }, 150);
-    },
-    /** @param ev {KeyboardEvent} */
-    onKey(ev) {
-      if(!this.active) return;
+onMounted(() => {
+  nextTick(() => passEl.value?.focus());
+});
 
-      else if(ev.key === 'Escape')
-        this.cancel();
-    }
-  }
+function confirm() {
+  if(!valid.value) return;
+
+  emits('confirm', { password: password.value, newpass: newpass.value });
 }
 </script>
 <style lang='scss'>

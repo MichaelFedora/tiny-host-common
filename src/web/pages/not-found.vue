@@ -4,7 +4,7 @@
   <p>Couldn't find the page you were looking for. Try going <router-link to='/'>Home</router-link>?</p>
 </div>
 </template>
-<script>
+<script lang='ts'>
 export default {
   name: 'tiny-not-found'
 }

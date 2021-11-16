@@ -16,13 +16,13 @@
     <span class='h4 sub'>name</span>
     <span class='h4 sub'>options</span>
 
-    <template v-for='(mk, i) of masterkeys'>
-      <span :key='"mk-id-" + i'>{{ mk.id }}</span>
-      <div class='name' :key='"mk-name-" + i'>
+    <template v-for='(mk, i) of masterkeys' :key='"mk-" + i'>
+      <span>{{ mk.id }}</span>
+      <div class='name'>
         <input v-if='mk.editing' type='text' placeholder='name' required v-model='mk.editName' />
         <span v-else>{{ mk.name }}</span>
       </div>
-      <div :key='"mk-opts-" + i'>
+      <div>
         <template v-if='!mk.editing'>
           <button class='primary' @click='useMasterKey(mk.id)'>use</button>
           <button class='warning'  @click='edit("mk", mk)'>edit</button>
@@ -45,13 +45,13 @@
     <span class='h4 sub'>created</span>
     <span class='h4 sub'>options</span>
 
-    <template v-for='(sess, i) of sessions'>
-      <span :key='"sess-id-" + i'>{{ sess.id }}</span>
-      <div class='scopes' :key='"sess-scopes-" + i'>
+    <template v-for='(sess, i) of sessions' :key='"sess-" + i'>
+      <span>{{ sess.id }}</span>
+      <div class='scopes'>
         <span v-for='(scope, j) of sess.scopes' :key='"sess-scope-" + i + "-" + j' class='tag'>{{scope}}</span>
       </div>
-      <span :key='"sess-created-" + i'>{{ (new Date(sess.created)).toLocaleString() }}</span>
-      <div :key='"sess-opts-" + i'>
+      <span>{{ (new Date(sess.created)).toLocaleString() }}</span>
+      <div>
         <button class='danger' @click='revoke("s", sess.id)'>revoke</button>
       </div>
     </template>
@@ -61,40 +61,43 @@
 </div>
 </template>
 <script lang='ts'>
-import Vue from 'vue';
+import { defineComponent, reactive, toRefs } from 'vue';
 //@ts-ignore
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiArrowLeft, mdiPlus } from '@mdi/js';
 
-import dataBus from 'services/data-bus';
-import localApi from 'services/local-api';
+import dataBus from '@/services/data-bus';
+import localApi from '@/services/local-api';
 
-import { openModal } from 'utility';
+import modals from '@/services/modals';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'tiny-sessions',
   components: { SvgIcon },
-  data() { return {
-    working: false,
-    username: dataBus.user?.username || '???',
-    mdiArrowLeft, mdiPlus,
-    sessions: [],
-    masterkeys: []
-  }; },
-  mounted() { this.refresh(); },
-  methods: {
-    async refresh() {
-      if(this.working) return;
-      this.working = true;
+  setup(args, options) {
+    const data = reactive({
+      working: false,
+      username: dataBus.user?.username || '???',
+      mdiArrowLeft, mdiPlus,
+      sessions: [],
+      masterkeys: []
+    });
 
-      localApi.auth.getSessions().then(res => this.sessions = res, () => { });
-      localApi.auth.getMasterKeys().then(res => this.masterkeys = res, () => this.masterkeys = null);
+    async function refresh() {
+      if(data.working) return;
+      data.working = true;
 
-      this.working = false;
-    },
-    async addKey() {
+      localApi.auth.getSessions().then(res => data.sessions = res, () => { });
+      localApi.auth.getMasterKeys().then(res => data.masterkeys = res, () => data.masterkeys = null);
+
+      data.working = false;
+    }
+
+    refresh();
+
+    async function addKey() {
       // name it
-      const name = await openModal({
+      const name = await modals.open({
         title: 'Add Master Key',
         message: 'A Master Key can be used by a Tiny Home to use this node '
         + 'when authorizing with apps. Be careful -- this key can be used to '
@@ -102,6 +105,8 @@ export default Vue.extend({
         type: 'warning',
         prompt: { required: true, placeholder: 'name' }
       });
+
+      console.log('name', name);
 
       if(!name)
         return;
@@ -113,7 +118,7 @@ export default Vue.extend({
       const wrapped = btoa(JSON.stringify({ key, url: localApi.url, type: dataBus.type })).replace(/=+$/, '');
 
       //show it
-      openModal({
+      modals.open({
         title: 'Master Key Added',
         message: 'Add this to your tiny home. It can always be revoked from this '
         + 'page.',
@@ -121,57 +126,74 @@ export default Vue.extend({
         alert: true
       });
 
-      this.refresh();
-    },
-    useMasterKey(key: any) {
+      refresh()
+    }
+
+    function useMasterKey(key: any) {
       const wrapped = btoa(JSON.stringify({ key, url: localApi.url, type: dataBus.type })).replace(/=+$/, '');
 
-      openModal({
+      modals.open({
         title: 'Master Key "' + key.name + '"',
         message: 'Add this to your tiny home. It can always be revoked from this '
         + 'page.',
         prompt: { readonly: true, value: wrapped },
         alert: true
       });
-    },
-    async edit(type: 'mk' | 's', key: any) {
+    }
+
+    async function edit(type: 'mk' | 's', key: any) {
       switch(type) {
         case 'mk':
-          this.$set(key, 'editName', key.name);
+          key.editName = key.name;
       }
-      this.$set(key, 'editing', true);
-    },
-    cancel(type: 'mk' | 's', key: any) {
-      this.$set(key, 'editing', false);
+      key.editing = true;
+    }
+
+    function cancel(type: 'mk' | 's', key: any) {
+      key.editing = false;
       switch(type) {
         case 'mk':
-          this.$set(key, 'editName', key.name);
+          key.editName = key.name;
       }
-    },
-    async save(type: 's' | 'mk', key: any) {
+    }
+
+    async function save(type: 's' | 'mk', key: any) {
       switch(type) {
         case 'mk':
           if(!key.editName) return;
           await localApi.auth.updateMasterKey(key.id, key.editName).catch(() => { });
-          await this.refresh();
+          await refresh();
           break;
       }
-      this.cancel(type, key);
-    },
-    async revoke(type: 's' | 'mk', id: string) {
+      cancel(type, key);
+    }
+
+    async function revoke(type: 's' | 'mk', id: string) {
       switch(type) {
         case 's':
           await localApi.auth.delSession(id).catch(() => { });
         case 'mk':
           await localApi.auth.delMasterKey(id).catch(() => { });
       }
-      return this.refresh();
+      return refresh();
+    }
+
+    return {
+      ...toRefs(data),
+      refresh,
+
+      addKey,
+      useMasterKey,
+      edit,
+      cancel,
+      save,
+      revoke
     }
   }
 });
 </script>
 <style lang='scss'>
-@import 'colors.scss';
+@import '@/colors.scss';
 
 #tiny-sessions {
 

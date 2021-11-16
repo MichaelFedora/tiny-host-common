@@ -17,41 +17,49 @@
 </div>
 </template>
 <script lang='ts'>
-import Vue from 'vue';
-import dataBus from 'services/data-bus';
-import localApi from 'services/local-api';
+import { defineComponent, reactive, computed, toRefs, onMounted } from 'vue';
+import dataBus from '@/services/data-bus';
+import localApi from '@/services/local-api';
 
-export default Vue.extend({
-  data() { return {
-    working: false,
+import router from '@/router';
 
-    username: dataBus.user?.username || '{current user}',
+export default defineComponent({
+  setup(args, context) {
+    const handshake = computed(() => String(router.currentRoute.value.query.handshake));
 
-    app: '',
-    scopes: [] as string[]
-  }; },
-  computed: {
-    handshake() { return String(this.$route.query.handshake); },
-  },
-  async mounted() {
-    if(!this.handshake)
-      return;
+    const data = reactive({
+      working: false,
 
-    this.working = true;
+      username: dataBus.user?.username || '{current user}',
 
-    const appInfo = await localApi.auth.getHandshakeInfo(this.handshake).catch(() => null);
-    this.app = appInfo?.app || '{broken}';
-    this.scopes = appInfo?.scopes || [];
+      app: '',
+      scopes: [] as string[]
+    });
 
-    this.working = false;
-  },
-  methods: {
-    cancel() {
-      localApi.auth.cancelHandshake(this.handshake);
-    },
-    approve() {
-      if(this.handshake && this.app)
-        localApi.auth.approveHandshake(this.handshake);
+    onMounted(async () => {
+      if(!handshake.value)
+        return;
+
+      data.working = true;
+
+      const appInfo = await localApi.auth.getHandshakeInfo(handshake.value).catch(() => null);
+      data.app = appInfo?.app || '{broken}';
+      data.scopes = appInfo?.scopes || [];
+
+      data.working = false;
+    });
+
+    return {
+      handshake,
+      ...toRefs(data),
+
+      cancel() {
+        localApi.auth.cancelHandshake(handshake.value);
+      },
+      approve() {
+        if(handshake.value && data.app)
+          localApi.auth.approveHandshake(handshake.value);
+      }
     }
   }
 });

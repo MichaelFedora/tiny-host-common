@@ -3,38 +3,76 @@
   <h3>tiny {{type ? type + 's ' : ''}}host<template v-if='loggedIn'> - {{username}}</template></h3>
   <router-view />
 </div>
+<Modal
+  v-for='(modal, i) of modalList'
+  :key='"modal-" + i'
+  v-bind='modal'
+  @destroy='destroyModal(i)'
+  @confirm='modal.onConfirm'
+  @cancel='modal.onCancel'
+/>
 </template>
 <script lang='ts'>
-import Vue from 'vue';
-import dataBus from 'services/data-bus';
+import { defineComponent, ref, watch } from 'vue';
+import Modal from './components/modal.vue';
+import dataBus from '@/services/data-bus';
+import modals, { ModalPropsExtended } from '@/services/modals';
 
-export default Vue.extend({
-  name: 'app',
-  data() { return {
-    loggedIn: Boolean(dataBus.session),
-    type: dataBus.type || '',
-    username: dataBus.user?.username || '',
-    page: this.$route.name || ''
-  }; },
-  watch: {
-    $route(n, o) {
+import router from './router';
+
+export default defineComponent({
+  components: { Modal },
+  setup() {
+    const loggedIn = ref(Boolean(dataBus.session));
+    const type = ref(dataBus.type || '');
+    const username = ref(dataBus.user?.username || '');
+    const page = ref(router.currentRoute.value.name || '');
+
+    const modalList = ref([] as ModalPropsExtended[]);
+
+    modals.modalRequest.subscribe(v => {
+      modalList.value.push(v);
+    });
+
+    const destroyModal = (idx: number) => {
+      modalList.value.splice(idx, 1);
+    };
+
+    modals.dismissAllRequest.subscribe(() => {
+      const v = modalList.value;
+      modalList.value = [];
+      for(const m of v)
+        m.onCancel();
+    });
+
+    watch(router.currentRoute, (n, o) => {
       if(n.path !== o.path) {
         if(!/^\/login/.test(n.path)) {
-          if(!this.loggedIn)
-            this.loggedIn = Boolean(dataBus.session);
-          if(!this.username)
-            this.username = dataBus.user?.username;
+          if(!loggedIn.value)
+            loggedIn.value = Boolean(dataBus.session);
+          if(!username.value)
+            username.value = dataBus.user?.username;
         } else {
-          if(this.loggedIn)
-            this.loggedIn = Boolean(dataBus.session);
-          if(this.username)
-            this.username = dataBus.user?.username;
+          if(loggedIn.value)
+            loggedIn.value = Boolean(dataBus.session);
+          if(username.value)
+            username.value = dataBus.user?.username;
         }
 
-        this.page = n.name;
+        page.value = n.name;
       }
+    })
+
+    return {
+      loggedIn,
+      type,
+      username,
+      page,
+
+      modalList,
+      destroyModal
     }
-  },
+  }
 });
 </script>
 <style lang='scss'>

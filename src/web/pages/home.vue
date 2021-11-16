@@ -1,59 +1,72 @@
 <template>
 <div id='tiny-home'>
+  <ChangePassModal v-if='showChangePass' @destroy='showChangePass = false' @confirm='changePass' />
   <div>
     <router-link class='button info' to='/sessions'><span>Manage Sessions</span></router-link>
-    <button class='warning' @click='changePass'><span>Change Password</span></button>
+    <button class='warning' @click='showChangePass = true'><span>Change Password</span></button>
     <button class='danger' @click='deleteSelf'><span>Delete Account</span></button>
     <button class='primary' @click='logout'><span>Logout</span></button>
   </div>
 </div>
 </template>
 <script lang='ts'>
-import Vue from 'vue';
-import dataBus from 'services/data-bus';
-import localApi from 'services/local-api';
+import { defineComponent, reactive, toRefs } from 'vue';
+import dataBus from '@/services/data-bus';
+import localApi from '@/services/local-api';
 
-import { openModal, openCustomModal } from 'utility';
+import modals from '@/services/modals';
 
-import changePassModal from 'components/change-pass-modal.vue';
+import ChangePassModal from '@/components/change-pass-modal.vue';
+import router from '@/router';
 
-export default Vue.extend({
-  name: 'tiny-home',
-  data() { return {
-    working: false,
-    username: dataBus.user?.username || '???'
-  }; },
-  mounted() { this.refresh(); },
-  methods: {
-    async refresh() {
-      if(this.working) return;
-      this.working = true;
+export default defineComponent({
+  components: { ChangePassModal },
+  setup(args, context) {
+    const data = reactive({
+      working: false,
+      username: dataBus.user?.username ||  '???',
+      showChangePass: false
+    });
+
+    async function refresh() {
+      if(data.working) return;
+      data.working = true;
 
       // just show places to go
 
-      this.working = false;
-    },
-    async changePass() {
-      const choice = await openCustomModal(changePassModal);
-      if(choice)
+      data.working = false;
+    }
+
+    async function changePass(choice?: { password: string, newpass: string }) {
+      if(choice && typeof choice === 'object')
         await localApi.auth.changePass(choice.password, choice.newpass).catch(() => { });
-    },
-    async logout() {
+    }
+
+    async function logout() {
       await localApi.auth.logout();
-      this.$router.push('/login');
-    },
-    async deleteSelf() {
-      const choice = await openModal({
+      router.push('/login');
+    }
+
+    async function deleteSelf() {
+      const choice = await modals.open<string>({
         title: 'Delete Account',
         type: 'danger',
         message: 'Are you sure you want to delete your account? This cannot be undone.',
         prompt: { type: 'password', placeholder: 'password', required: true }
       });
 
-      if(choice) {
-        await localApi.deleteSelf(choice).catch(() => { });
-        this.$router.push('/login');
-      }
+      if(choice)
+        await localApi.deleteSelf(choice).then(() => router.push('/login'), () => { });
+    }
+
+    refresh();
+
+    return {
+      ...toRefs(data),
+      refresh,
+      changePass,
+      logout,
+      deleteSelf
     }
   }
 });

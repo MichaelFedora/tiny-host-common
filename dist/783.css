@@ -1,2 +1,0 @@
-#tiny-login{display:flex;flex-flow:column nowrap;flex-grow:1;align-self:center;align-content:center;justify-content:center}#tiny-login>div#buttons{display:flex;justify-content:flex-end;margin-top:0.5rem;margin-bottom:1.5rem}#tiny-login>div#buttons>button:not(:last-child){margin-right:0.5rem}#tiny-login>div#buttons>a{font-size:0.8rem}
-
