@@ -25,7 +25,6 @@ items (user & session types, middleware, errors, etc).
 |GET |sid |/auth/handshake/cancel||redirect to app with `?error=access_denied`|
 |POST|    |/auth/session         |`{ redirect, code, scopes }`|`"sid"`|
 
-
 ## Optional Master Key API
 
 |req   |auth|path                  |query         |body      |return          |
@@ -39,6 +38,7 @@ items (user & session types, middleware, errors, etc).
 ## Usage
 
 **Services** (from `tiny-host-common/auth`):
+
 - `AuthDB` - The database for handling Users, Sessions, etc.
 - `AuthApi` - The Api for handling authentication, described above.
   - Optionally, it can also handle Handshakes and Master-Key generation
@@ -46,10 +46,11 @@ items (user & session types, middleware, errors, etc).
     - Master-Keys are for homes to be able to easily generate tokens
 
 **Types** (from `tiny-host-common/auth`):
+
 - `User`: A user data type
 - `Session`: A session data type
 
-**Middleware**
+**Middleware**:
 
 - `validateUserSession(db: AuthDB)` (from `/auth`) - middleware for validating a user session
   - appends to the request body:
@@ -63,12 +64,15 @@ items (user & session types, middleware, errors, etc).
   function
 
 **DB Info Types & Utilities**:
+
 - different types & utilites for a db-host to use, in `tiny-host-common/db`
 
 **File Info Types**:
+
 - different types for a file-host to use, in `tiny-host-common/files`
 
 **Static Host Webpage**:
+
 - a static html page for hosts to use, for
   - registering & logging in users
   - managing user & session (logging out, deleting self)
@@ -82,6 +86,10 @@ items (user & session types, middleware, errors, etc).
   shared scope :id)
 - session descriptors; show who generated it (like app domain)
 - handshakes page!
+- fix the login reroute being weird sometimes
+- add some transitions
+- build as a library so tiny-home can borrow components without
+needing source code
 
 ## License
 
