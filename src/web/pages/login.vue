@@ -29,15 +29,18 @@
 </template>
 <script lang='ts'>
 import { defineComponent, reactive, toRefs, watch, ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import localApi from '@/services/local-api';
 import dataBus from '@/services/data-bus';
 import modals from '@/services/modals';
-import router from '@/router';
 
 export default defineComponent({
   name: 'tiny-login',
 
   setup(args, context) {
+    const route = useRoute();
+    const router = useRouter();
+
     const data = reactive({
       registering: false,
       canRegister: true,
@@ -66,8 +69,8 @@ export default defineComponent({
     ));
 
     onMounted(() => {
-      if(router.currentRoute.value.query.username)
-        data.username = '' + router.currentRoute.value.query.username;
+      if(route.query.username)
+        data.username = '' + route.query.username;
       usernameEl.value?.focus();
     });
 
@@ -103,11 +106,8 @@ export default defineComponent({
         success = await localApi.getSelf().then(() => true, () => false);
 
       if(success) {
-        if(router.currentRoute.value &&
-          router.currentRoute.value.query.goto &&
-          !(router.currentRoute.value.query.goto instanceof Array)) {
-
-          router.push(router.currentRoute.value.query.goto);
+        if(route.query.goto && !(route.query.goto instanceof Array)) {
+          router.push(route.query.goto);
         } else
           router.push('/');
       } else

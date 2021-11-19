@@ -42,10 +42,13 @@ router.beforeEach((to, from, next) => {
       document.title = baseTitle;
   }
 
-  if(!dataBus.session && !/^\/login/.test(to.path))
-    next(`/login?goto=${to.fullPath}`);
-
-  next();
+  if(!dataBus.session && !/^\/login/.test(to.path)) {
+    if(to.path.length > 1)
+      next(`/login?goto=${to.fullPath}`);
+    else
+      next('/login');
+  } else
+    next();
 });
 
 export default router;

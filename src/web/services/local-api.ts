@@ -13,8 +13,12 @@ function handleError(e: AxiosError) {
   if(e.response?.status === 403 && e.response?.data?.message === 'No session found!')
     dataBus.clear();
 
-  if(!dataBus.session && !/^\/login/.test(router.currentRoute.value.path))
-    router.push(`/login?goto=${router.currentRoute.value.fullPath}`);
+  if(!dataBus.session && !/^\/login/.test(router.currentRoute.value.path)) {
+    if(router.currentRoute.value.path.length > 1)
+      router.push(`/login?goto=${router.currentRoute.value.fullPath}`);
+    else
+      router.push('/login');
+  }
 
   modalHandleError(e);
 }

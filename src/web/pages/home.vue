@@ -11,17 +11,19 @@
 </template>
 <script lang='ts'>
 import { defineComponent, reactive, toRefs } from 'vue';
+import { useRouter } from 'vue-router';
 import dataBus from '@/services/data-bus';
 import localApi from '@/services/local-api';
 
 import modals from '@/services/modals';
 
 import ChangePassModal from '@/components/change-pass-modal.vue';
-import router from '@/router';
 
 export default defineComponent({
   components: { ChangePassModal },
   setup(args, context) {
+    const router = useRouter();
+
     const data = reactive({
       working: false,
       username: dataBus.user?.username ||  '???',

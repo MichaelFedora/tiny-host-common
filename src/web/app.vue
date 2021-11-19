@@ -13,20 +13,22 @@
 />
 </template>
 <script lang='ts'>
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, toRef, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import Modal from './components/modal.vue';
 import dataBus from '@/services/data-bus';
 import modals, { ModalPropsExtended } from '@/services/modals';
 
-import router from './router';
-
 export default defineComponent({
   components: { Modal },
   setup() {
+    const router = useRouter();
+    const route = useRoute();
+
     const loggedIn = ref(Boolean(dataBus.session));
     const type = ref(dataBus.type || '');
     const username = ref(dataBus.user?.username || '');
-    const page = ref(router.currentRoute.value.name || '');
+    const page = toRef(route, 'name');
 
     const modalList = ref([] as ModalPropsExtended[]);
 
@@ -45,9 +47,9 @@ export default defineComponent({
         m.onCancel();
     });
 
-    watch(router.currentRoute, (n, o) => {
-      if(n.path !== o.path) {
-        if(!/^\/login/.test(n.path)) {
+    watch(() => route.path, (n, o) => {
+      if(n !== o) {
+        if(!/^\/login/.test(n)) {
           if(!loggedIn.value)
             loggedIn.value = Boolean(dataBus.session);
           if(!username.value)
@@ -58,8 +60,6 @@ export default defineComponent({
           if(username.value)
             username.value = dataBus.user?.username;
         }
-
-        page.value = n.name;
       }
     })
 

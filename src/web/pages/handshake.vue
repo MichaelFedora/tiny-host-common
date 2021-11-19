@@ -18,14 +18,14 @@
 </template>
 <script lang='ts'>
 import { defineComponent, reactive, computed, toRefs, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import dataBus from '@/services/data-bus';
 import localApi from '@/services/local-api';
 
-import router from '@/router';
-
 export default defineComponent({
   setup(args, context) {
-    const handshake = computed(() => String(router.currentRoute.value.query.handshake));
+    const route = useRoute();
+    const handshake = computed(() => route.query.handshake as string);
 
     const data = reactive({
       working: false,
