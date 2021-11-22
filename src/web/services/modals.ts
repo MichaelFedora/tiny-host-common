@@ -1,4 +1,4 @@
-import { createApp, App } from 'vue';
+import { createApp, App, ref, Ref } from 'vue';
 import Modal from '@/components/modal.vue';
 
 import { Subject } from 'rxjs';
@@ -17,7 +17,7 @@ export interface ModalPropsExtended extends ModalProps {
   onConfirm?: (value: unknown) => void;
 }
 
-export default new class ModalBus {
+export const modals = new class ModalBus {
   private _modalRequest = new Subject<ModalPropsExtended>();
   get modalRequest() { return this._modalRequest.asObservable(); }
 
@@ -67,6 +67,47 @@ export default new class ModalBus {
   }
 }
 
-export function appSetup() {
+export default modals;
 
+/**
+ * Place this in your template:
+ *
+ * ```html
+ * <Modal
+ *   v-for='(modal, i) of modalList'
+ *   :key='"modal-" + i'
+ *   v-bind='modal'
+ *   @destroy='destroyModal(i)'
+ *   @confirm='modal.onConfirm'
+ *   @cancel='modal.onCancel'
+ * />
+ * ```
+ *
+ * @returns {{ modalList, destroyModal }} - modalList, a ref of the modals, and destroyModal, a callback
+ */
+export function appSetup(): {
+  modalList: Ref<ModalPropsExtended[]>;
+  destroyModal: (idx: number) => void
+} {
+  const modalList = ref([] as ModalPropsExtended[]);
+
+  modals.modalRequest.subscribe(v => {
+    modalList.value.push(v);
+  });
+
+  const destroyModal = (idx: number) => {
+    modalList.value.splice(idx, 1);
+  };
+
+  modals.dismissAllRequest.subscribe(() => {
+    const v = modalList.value;
+    modalList.value = [];
+    for(const m of v)
+      m.onCancel();
+  });
+
+  return {
+    modalList,
+    destroyModal
+  }
 }

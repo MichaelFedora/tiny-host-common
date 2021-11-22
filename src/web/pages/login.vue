@@ -11,7 +11,7 @@
     </div>
     <div v-if='registering' class='field'>
       <input placeholder='confirm password' type='password' v-model='confirmpass' :pattern='password' @keyup.enter='register()'/>
-      <span class='error'>{{ password && password !== confirmpass ? "data != password" : "" }}</span>
+      <span class='error'>{{ password && password !== confirmpass ? "this != password" : "" }}</span>
     </div>
   </div>
   <div id='buttons'>

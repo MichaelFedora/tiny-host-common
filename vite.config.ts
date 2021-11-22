@@ -21,7 +21,8 @@ export default defineConfig({
     outDir: path.resolve(__dirname, 'dist'),
     /*
     lib: {
-      entry: path.resolve(__dirname, 'src/web/)
+      name: 'tiny-host-common',
+      entry: path.resolve(__dirname, 'src/web/index.ts')
     },
     rollupOptions: {
       external: ['vue'],
@@ -30,7 +31,6 @@ export default defineConfig({
           vue: 'Vue'
         }
       }
-    }
-    */
+    } // */
   }
 });
